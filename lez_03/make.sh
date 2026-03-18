@@ -1,0 +1,1 @@
+make -j CC=gcc LDLIBS="-lopengl32 -lglu32 -lfreeglut"
