@@ -3,4 +3,4 @@
 # USE THIS SCRIPT TO COMPILE ON WINDOWS
 # YOU WILL NEED TO INSTALL freeglut FROM MSYS2
 # USE gcc AND LINK THE FOLLOWING LIBRARIES:
-make -j CC=gcc LDLIBS="-lopengl32 -lglu32 -lfreeglut"
+make -j CC=gcc LDLIBS="-lopengl32 -lglu32 -lfreeglut -lm"
