@@ -122,7 +122,7 @@ void es4(void) {
 void keyboard(unsigned char key, int x, int y) {
   switch (key) {
     case ' ': // SPACE key
-      sides = rand() % 16 + 4;
+      sides = rand() % 13 + 4; // Random number of sides between 4 and 16
       glClearColor((float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, 1.0);
       glutPostRedisplay();
       break;
