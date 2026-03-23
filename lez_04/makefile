@@ -1,5 +1,5 @@
 CC = clang
-LDLIBS = -lGL -lGLU -lglut
+LDLIBS = -lGL -lGLU -lglut -lm
 
 a.out: main.o checkerror.o
 	$(CC) main.o checkerror.o $(LDLIBS)
