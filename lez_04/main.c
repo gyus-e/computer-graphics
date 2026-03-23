@@ -13,7 +13,7 @@ const char *names[] = {"ESERCIZIO 1", "ESERCIZIO 2", "ESERCIZIO 3", "ESERCIZIO 4
 const float center[] = {0.0, 0.0};
 const float r = 0.5;
 
-int sides = 2;
+int sides = 4;
 
 
 //ESERCIZIO 1: cerchio blu con centro rosso (sfumato)
@@ -42,7 +42,7 @@ void es1(void) {
 }
 
 
-//ESERCIZIO 2: poligono inscritto, numero lati cambia premendo spazio
+//ESERCIZIO 2: poligono inscritto, numero lati cambia cliccando col mouse
 void es2(void) {
   float angle, x, y;
   int i;
@@ -55,8 +55,8 @@ void es2(void) {
     glVertex2f(center[0], center[1]);
 
     glColor3f(0.0, 0.0, 1.0);
-    for (i = 0; i <= 360; i+=360/sides) {
-      angle = M_PI * i / 180.0;
+    for (i = 0; i <= sides; i++) {
+      angle = 2 * M_PI * i / sides;
       x = center[0] + r * cos(angle);
       y = center[1] + r * sin(angle);
       glVertex2f(x, y);
@@ -122,7 +122,6 @@ void es4(void) {
 void keyboard(unsigned char key, int x, int y) {
   switch (key) {
     case ' ': // SPACE key
-      sides = rand() % 13 + 4; // Random number of sides between 4 and 16
       glClearColor((float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, 1.0);
       glutPostRedisplay();
       break;
@@ -137,7 +136,15 @@ void special(){
 }
 
 
-void mouse(){
+void mouse(int button, int state, int x, int y) {
+  switch (button) {
+    case GLUT_LEFT_BUTTON:
+      if (state == GLUT_DOWN) {      
+        sides = rand() % 13 + 4; // Random number of sides between 4 and 16
+        glutPostRedisplay();
+      }
+      break;
+  }
 
 }
 
@@ -167,7 +174,7 @@ int main(int argc, char **argv) {
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glutDisplayFunc(es2);
   glutKeyboardFunc(keyboard);
-  glutSpecialFunc(special);
+  // glutSpecialFunc(special);
   glutMouseFunc(mouse);
 
 
