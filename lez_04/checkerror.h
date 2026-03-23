@@ -1,6 +1,6 @@
 #ifndef CHECKERROR_H
 #define CHECKERROR_H
 
-void checkError(char *label);
+void checkError(const char *label);
 
 #endif // CHECKERROR_H
