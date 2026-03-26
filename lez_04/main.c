@@ -68,14 +68,37 @@ void es2(void) {
 }
 
 
-//ESERCIZIO 3: ?
+//ESERCIZIO 3: cerchio blu + cerchio nero più piccolo al centro (non sfumato)
 void es3(void) {
+  float angle, x, y;
+  int i;
+
   glPointSize(1.0);
   glClear(GL_COLOR_BUFFER_BIT);
 
+
   glBegin(GL_TRIANGLE_FAN);
-    
+    glColor3f(0.0, 0.0, 1.0); 
+    glVertex2f(center[0], center[1]);
+    for (i = 0; i <= 360; i++) {
+      angle = M_PI * i / 180.0;
+      x = center[0] + r * cos(angle);
+      y = center[1] + r * sin(angle);
+      glVertex2f(x, y);
+    }
   glEnd();
+
+  glBegin(GL_TRIANGLE_FAN);
+    glColor3f(0.0, 0.0, 0.0); 
+    glVertex2f(center[0], center[1]);
+    for (int i = 0; i <= 360; i++) {
+      float angle = i * M_PI / 180.0;
+      float x = center[0] + r*0.5 * cos(angle);
+      float y = center[1] + r*0.5 * sin(angle);
+      glVertex2f(x, y);
+    }
+  glEnd();
+  
 
   checkError(names[2]);
   glFlush();
