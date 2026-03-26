@@ -23,6 +23,7 @@ void es2(void);
 void es3(void);
 void es4(void);
 void es3_alt(void); // disegna direttamente il toro, senza sovrapporre due cerchi
+void es4_alt(void);
 
 
 int main(int argc, char **argv) {
@@ -44,7 +45,7 @@ int main(int argc, char **argv) {
   glutKeyboardFunc(keyboard);
 
 
-  glutInitWindowPosition(size + padding, 0);
+  glutInitWindowPosition(0, size + padding);
   glutInitWindowSize(size, size);
   window[1] = glutCreateWindow(names[1]);
   glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -53,7 +54,7 @@ int main(int argc, char **argv) {
   glutMouseFunc(mouse);
 
 
-  glutInitWindowPosition(0, size + padding);
+  glutInitWindowPosition(size + padding, 0);
   glutInitWindowSize(size, size);
   window[2] = glutCreateWindow(names[2]);
   glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -69,12 +70,21 @@ int main(int argc, char **argv) {
   glutKeyboardFunc(keyboard);
   
 
-  glutInitWindowPosition(2*(size + padding), size + padding);
+  glutInitWindowPosition(2*(size + padding), 0);
   glutInitWindowSize(size, size);
-  glutCreateWindow("ES3ALT");
+  glutCreateWindow("Esercizio 3 ALT");
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glutDisplayFunc(es3_alt);
   glutKeyboardFunc(keyboard);
+
+
+  glutInitWindowPosition(2*(size + padding), size + padding);
+  glutInitWindowSize(size, size);
+  glutCreateWindow("Esercizio 4 ALT");
+  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glutDisplayFunc(es4_alt);
+  glutKeyboardFunc(keyboard);
+
 
   glutMainLoop();
   return 0;
@@ -195,6 +205,42 @@ void es3(void) {
 }
 
 
+// ESERCIZIO 4: cerchio blu con centro rosso (sfumato) + cerchio nero più piccolo al centro
+void es4(void) {
+  float angle, x, y;
+  int i;
+
+  glPointSize(1.0);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+  glBegin(GL_TRIANGLE_FAN);
+    glColor3f(1.0, 0.0, 0.0); 
+    glVertex2f(center[0], center[1]);
+    
+    glColor3f(0.0, 0.0, 1.0);
+    for (i = 0; i <= 360; i++) {
+      angle = M_PI * i / 180.0;
+      x = center[0] + r * cos(angle);
+      y = center[1] + r * sin(angle);
+      glVertex2f(x, y);
+    }
+  glEnd();
+
+  glBegin(GL_TRIANGLE_FAN);
+    glColor3f(0.0, 0.0, 0.0); 
+    glVertex2f(center[0], center[1]);
+    for (int i = 0; i <= 360; i++) {
+      float angle = i * M_PI / 180.0;
+      float x = center[0] + r*0.5 * cos(angle);
+      float y = center[1] + r*0.5 * sin(angle);
+      glVertex2f(x, y);
+    }
+  glEnd();
+  
+  checkError(names[3]);
+  glFlush();
+}
+
 
 //ESERCIZIO 3 ALT: toro blu
 void es3_alt(void) {
@@ -231,39 +277,37 @@ void es3_alt(void) {
 }
 
 
-
-// ESERCIZIO 4: cerchio blu con centro rosso (sfumato) + cerchio nero più piccolo al centro
-void es4(void) {
+//ESERCIZIO 3 ALT: toro blu
+void es4_alt(void) {
   float angle, x, y;
+  float vertex_pos[2];
   int i;
 
   glPointSize(1.0);
   glClear(GL_COLOR_BUFFER_BIT);
 
-  glBegin(GL_TRIANGLE_FAN);
-    glColor3f(1.0, 0.0, 0.0); 
-    glVertex2f(center[0], center[1]);
-    
-    glColor3f(0.0, 0.0, 1.0);
-    for (i = 0; i <= 360; i++) {
-      angle = M_PI * i / 180.0;
-      x = center[0] + r * cos(angle);
-      y = center[1] + r * sin(angle);
-      glVertex2f(x, y);
-    }
-  glEnd();
 
-  glBegin(GL_TRIANGLE_FAN);
-    glColor3f(0.0, 0.0, 0.0); 
-    glVertex2f(center[0], center[1]);
-    for (int i = 0; i <= 360; i++) {
-      float angle = i * M_PI / 180.0;
-      float x = center[0] + r*0.5 * cos(angle);
-      float y = center[1] + r*0.5 * sin(angle);
-      glVertex2f(x, y);
-    }
-  glEnd();
-  
-  checkError(names[3]);
+  for (i = 0; i <= 360; i++) {
+    glBegin(GL_TRIANGLE_FAN);
+      glColor3f(1.0, 0.0, 0.0); 
+      angle = M_PI * i / 180.0;
+      vertex_pos[0] = center[0] + r*0.5 * cos(angle);
+      vertex_pos[1] = center[1] + r*0.5 * sin(angle);
+      glVertex2f(vertex_pos[0], vertex_pos[1]);
+      
+      glColor3f(0.0, 0.0, 1.0); 
+      vertex_pos[0] = center[0] + r * cos(angle);
+      vertex_pos[1] = center[1] + r * sin(angle);
+      glVertex2f(vertex_pos[0], vertex_pos[1]);
+
+      angle = M_PI * (i+45) / 180.0;
+      vertex_pos[0] = center[0] + r * cos(angle);
+      vertex_pos[1] = center[1] + r * sin(angle);
+      glVertex2f(vertex_pos[0], vertex_pos[1]);
+    glEnd();
+  }
+
+
+  checkError(names[2]);
   glFlush();
 }
