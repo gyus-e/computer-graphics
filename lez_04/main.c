@@ -15,6 +15,96 @@ const float r = 0.5;
 
 int sides = 4;
 
+void keyboard(unsigned char key, int x, int y);
+void mouse(int button, int state, int x, int y);
+
+void es1(void);
+void es2(void);
+void es3(void);
+void es4(void);
+void es3_alt(void); // disegna direttamente il toro, senza sovrapporre due cerchi
+
+
+int main(int argc, char **argv) {
+  int size = 450;
+  int padding = 100;
+  int window[4];
+  srand(time(NULL));
+  
+
+  glutInit(&argc, argv);
+  glutInitDisplayMode(GLUT_RGB);
+
+
+  glutInitWindowPosition(0, 0);
+  glutInitWindowSize(size, size);
+  window[0] = glutCreateWindow(names[0]);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glutDisplayFunc(es1);
+  glutKeyboardFunc(keyboard);
+
+
+  glutInitWindowPosition(size + padding, 0);
+  glutInitWindowSize(size, size);
+  window[1] = glutCreateWindow(names[1]);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glutDisplayFunc(es2);
+  glutKeyboardFunc(keyboard);
+  glutMouseFunc(mouse);
+
+
+  glutInitWindowPosition(0, size + padding);
+  glutInitWindowSize(size, size);
+  window[2] = glutCreateWindow(names[2]);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glutDisplayFunc(es3);
+  glutKeyboardFunc(keyboard);
+
+
+  glutInitWindowPosition(size + padding, size + padding);
+  glutInitWindowSize(size, size);
+  window[3] = glutCreateWindow(names[3]);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glutDisplayFunc(es4);
+  glutKeyboardFunc(keyboard);
+  
+
+  glutInitWindowPosition(2*(size + padding), size + padding);
+  glutInitWindowSize(size, size);
+  glutCreateWindow("ES3ALT");
+  glClearColor(0.0, 0.0, 0.0, 1.0);
+  glutDisplayFunc(es3_alt);
+  glutKeyboardFunc(keyboard);
+
+  glutMainLoop();
+  return 0;
+}
+
+
+void keyboard(unsigned char key, int x, int y) {
+  switch (key) {
+    case ' ': // SPACE key
+      glClearColor((float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, 1.0);
+      glutPostRedisplay();
+      break;
+    case 27: // ESC key
+      exit(0);
+  }
+}
+
+
+void mouse(int button, int state, int x, int y) {
+  switch (button) {
+    case GLUT_LEFT_BUTTON:
+      if (state == GLUT_DOWN) {      
+        sides = rand() % 13 + 4; // Random number of sides between 4 and 16
+        glutPostRedisplay();
+      }
+      break;
+  }
+
+}
+
 
 //ESERCIZIO 1: cerchio blu con centro rosso (sfumato)
 void es1(void) {
@@ -105,6 +195,43 @@ void es3(void) {
 }
 
 
+
+//ESERCIZIO 3 ALT: toro blu
+void es3_alt(void) {
+  float angle, x, y;
+  float vertex_pos[2];
+  int i;
+
+  glPointSize(1.0);
+  glClear(GL_COLOR_BUFFER_BIT);
+
+
+  for (i = 0; i <= 360; i++) {
+    glBegin(GL_TRIANGLE_FAN);
+      glColor3f(0.0, 0.0, 1.0); 
+
+      angle = M_PI * i / 180.0;
+      vertex_pos[0] = center[0] + r*0.5 * cos(angle);
+      vertex_pos[1] = center[1] + r*0.5 * sin(angle);
+      glVertex2f(vertex_pos[0], vertex_pos[1]);
+      vertex_pos[0] = center[0] + r * cos(angle);
+      vertex_pos[1] = center[1] + r * sin(angle);
+      glVertex2f(vertex_pos[0], vertex_pos[1]);
+
+      angle = M_PI * (i+45) / 180.0;
+      vertex_pos[0] = center[0] + r * cos(angle);
+      vertex_pos[1] = center[1] + r * sin(angle);
+      glVertex2f(vertex_pos[0], vertex_pos[1]);
+    glEnd();
+  }
+
+
+  checkError(names[2]);
+  glFlush();
+}
+
+
+
 // ESERCIZIO 4: cerchio blu con centro rosso (sfumato) + cerchio nero più piccolo al centro
 void es4(void) {
   float angle, x, y;
@@ -139,84 +266,4 @@ void es4(void) {
   
   checkError(names[3]);
   glFlush();
-}
-
-
-void keyboard(unsigned char key, int x, int y) {
-  switch (key) {
-    case ' ': // SPACE key
-      glClearColor((float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, (float)rand() / (float)RAND_MAX, 1.0);
-      glutPostRedisplay();
-      break;
-    case 27: // ESC key
-      exit(0);
-  }
-}
-
-
-void special(){
-
-}
-
-
-void mouse(int button, int state, int x, int y) {
-  switch (button) {
-    case GLUT_LEFT_BUTTON:
-      if (state == GLUT_DOWN) {      
-        sides = rand() % 13 + 4; // Random number of sides between 4 and 16
-        glutPostRedisplay();
-      }
-      break;
-  }
-
-}
-
-
-int main(int argc, char **argv) {
-  int size = 450;
-  int padding = 100;
-  int window[4];
-  srand(time(NULL));
-  
-
-  glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_RGB);
-
-
-  glutInitWindowPosition(0, 0);
-  glutInitWindowSize(size, size);
-  window[0] = glutCreateWindow(names[0]);
-  glClearColor(0.0, 0.0, 0.0, 1.0);
-  glutDisplayFunc(es1);
-  glutKeyboardFunc(keyboard);
-
-
-  glutInitWindowPosition(size + padding, 0);
-  glutInitWindowSize(size, size);
-  window[1] = glutCreateWindow(names[1]);
-  glClearColor(0.0, 0.0, 0.0, 1.0);
-  glutDisplayFunc(es2);
-  glutKeyboardFunc(keyboard);
-  // glutSpecialFunc(special);
-  glutMouseFunc(mouse);
-
-
-  glutInitWindowPosition(0, size + padding);
-  glutInitWindowSize(size, size);
-  window[2] = glutCreateWindow(names[2]);
-  glClearColor(0.0, 0.0, 0.0, 1.0);
-  glutDisplayFunc(es3);
-  glutKeyboardFunc(keyboard);
-
-
-  glutInitWindowPosition(size + padding, size + padding);
-  glutInitWindowSize(size, size);
-  window[3] = glutCreateWindow(names[3]);
-  glClearColor(0.0, 0.0, 0.0, 1.0);
-  glutDisplayFunc(es4);
-  glutKeyboardFunc(keyboard);
-  
-
-  glutMainLoop();
-  return 0;
 }
