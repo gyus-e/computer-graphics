@@ -28,7 +28,7 @@ int drawInscribedPolygon(const Point *center, const double radius,
   if (sides < 3) {
     return -1;
   }
-  glColor3f(rgb[0], rgb[1], rgb[2]);
+  glColor3dv(rgb);
   glBegin(GL_TRIANGLE_FAN);
   glVertex3f(center->x, center->y, center->z);
 
@@ -43,7 +43,7 @@ int drawInscribedPolygon(const Point *center, const double radius,
 
 void drawRectangle(const Point points[4], const double rgb[3]) {
   int i;
-  glColor3f(rgb[0], rgb[1], rgb[2]);
+  glColor3dv(rgb);
   glBegin(GL_QUADS);
   for (i = 0; i < 4; i++) {
     glVertex3f(points[i].x, points[i].y, points[i].z);
