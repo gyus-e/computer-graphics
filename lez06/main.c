@@ -1,3 +1,4 @@
+#include "checkerror.h"
 #include <math.h>
 #include <GL/freeglut_std.h>
 #include <GL/gl.h>
@@ -22,12 +23,26 @@ glOrtho(-1, 1, -1, 1, 1, 5)
 #define NEAR 4
 #define FAR 5
 
+typedef struct {
+  GLdouble x;
+  GLdouble y;
+  GLdouble z;
+} Point;
+
 GLdouble view[6] = {-1.0, 1.0, -1.0, 1.0, 1.0, 5.0};
 GLdouble translate[3] = {0.0, 0.0, -3.0};
 GLdouble y_rotation = 0.0;
 GLdouble z_rotation = 0.0;
 
-GLvoid drawOctagon(const GLdouble centro[3], const GLdouble raggio, const GLdouble rgb[3]) {
+Point getPoint(Point centro, const GLdouble raggio, const GLdouble angle) {
+  Point p;
+  p.x = centro.x + raggio * cos(angle);
+  p.y = centro.y + raggio * sin(angle);
+  p.z = centro.z;
+  return p;
+}
+
+GLvoid drawOctagon(Point centro, const GLdouble raggio, const GLdouble rgb[3]) {
   const GLint sides = 8;
   GLdouble angle, x, y, z;
 
@@ -36,19 +51,28 @@ GLvoid drawOctagon(const GLdouble centro[3], const GLdouble raggio, const GLdoub
     glVertex3f(0.2, 0.2, -1.5);
     for (int i = 0; i <= sides; i++) {
       angle = 2 * M_PI * i / sides;
-      x  = centro[0] + raggio * cos(angle);
-      y  = centro[1] + raggio * sin(angle);
-      z  = centro[2];
-      glVertex3f(x, y, z);
+      Point p = getPoint(centro, raggio, angle);
+      glVertex3f(p.x, p.y, p.z);
+    }
+  glEnd();
+}
+
+GLvoid drawRectangle(const Point points[4], const GLdouble rgb[3]) {
+  glColor3f(rgb[0], rgb[1], rgb[2]);
+  glBegin(GL_QUADS);
+    for (int i = 0; i < 4; i++) {
+      glVertex3f(points[i].x, points[i].y, points[i].z);
     }
   glEnd();
 }
 
 GLvoid display() {
-  const GLdouble centro_base_inf[] = {0.2, 0.2, -0.5};
-  const GLdouble centro_base_sup[] = {0.2, 0.2, -1.5};
+  const Point centro_base_inf = {0.2, 0.2, -0.5};
+  const Point centro_base_sup = {0.2, 0.2, -1.5};
   const GLdouble raggio = 0.5;
   const GLdouble rgb[] = {0.0, 0.0, 1.0};
+  Point points[4];
+  GLdouble angle, x, y, z;
 
   glPointSize(1.0);
   glClear(GL_COLOR_BUFFER_BIT);
@@ -56,7 +80,19 @@ GLvoid display() {
   glRotatef(z_rotation, 0.0, 0.0, 1.0);
   drawOctagon(centro_base_inf, raggio, rgb);
   drawOctagon(centro_base_sup, raggio, rgb);
-  //TODO: Draw the sides
+  for (int i = 0; i <= 8; i++) {
+    angle = 2 * M_PI * i / 8;
+    points[0] = getPoint(centro_base_inf, raggio, angle);
+    points[1] = getPoint(centro_base_sup, raggio, angle);
+
+    angle = 2 * M_PI * (i + 1) / 8;
+    points[2] = getPoint(centro_base_sup, raggio, angle);
+    points[3] = getPoint(centro_base_inf, raggio, angle);
+
+    drawRectangle(points, rgb);
+  }
+
+  checkError("ESERCIZIO 1");
   glFlush();
 }
 
