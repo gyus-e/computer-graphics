@@ -30,8 +30,8 @@ GLvoid gluPerspectiveWrapper(GLdouble left, GLdouble right, GLdouble bottom,
 const char *const WINDOW_TITLE = "Lezione 6 - Trasformazioni di Proiezione";
 GLdouble view[6] = {-1.0, 1.0, -1.0, 1.0, 1.0, 5.0};
 GLdouble translate[3] = {0.0, 0.0, -3.0};
-GLdouble y_rotation = 0.0;
-GLdouble z_rotation = 0.0;
+GLdouble rotate[3] = {0.0, 0.0, 0.0};
+GLdouble scale[3] = {1.0, 1.0, 1.0};
 void (*projection_func)(GLdouble, GLdouble, GLdouble, GLdouble, GLdouble,
                         GLdouble) = glOrtho;
 
@@ -77,8 +77,10 @@ GLvoid display() {
   glLoadIdentity();
 
   glTranslatef(translate[0], translate[1], translate[2]);
-  glRotatef(y_rotation, 0.0, 1.0, 0.0);
-  glRotatef(z_rotation, 0.0, 0.0, 1.0);
+  glRotatef(rotate[0], 1.0, 0.0, 0.0);
+  glRotatef(rotate[1], 0.0, 1.0, 0.0);
+  glRotatef(rotate[2], 0.0, 0.0, 1.0);
+  glScalef(scale[0], scale[1], scale[2]);
 
   glPointSize(1.0);
   drawInscribedPolygon(&lower_base_center, radius, sides, rgb);
@@ -144,8 +146,15 @@ GLvoid keyboard(unsigned char key, GLint x, GLint y) {
     view[TOP] = 1.0;
     view[NEAR_PLANE] = 1.0;
     view[FAR_PLANE] = 5.0;
-    y_rotation = 0.0;
-    z_rotation = 0.0;
+    translate[0] = 0.0;
+    translate[1] = 0.0;
+    translate[2] = -3.0;
+    rotate[0] = 0.0;
+    rotate[1] = 0.0;
+    rotate[2] = 0.0;
+    scale[0] = 1.0;
+    scale[1] = 1.0;
+    scale[2] = 1.0;
     break;
   case '1':
     printf("Projection: glOrtho\n");
@@ -170,21 +179,21 @@ GLvoid mouse(GLint button, GLint state, GLint x, GLint y) {
   switch (button) {
   case GLUT_LEFT_BUTTON:
     if (state == GLUT_DOWN) {
-      y_rotation += 10.0;
+      rotate[0] += 10.0;
       setProjection();
       glutPostRedisplay();
     }
     break;
   case GLUT_RIGHT_BUTTON:
     if (state == GLUT_DOWN) {
-      y_rotation -= 10.0;
+      rotate[1] -= 10.0;
       setProjection();
       glutPostRedisplay();
     }
     break;
   case GLUT_MIDDLE_BUTTON:
     if (state == GLUT_DOWN) {
-      z_rotation += 10.0;
+      rotate[2] += 10.0;
       setProjection();
       glutPostRedisplay();
     }
