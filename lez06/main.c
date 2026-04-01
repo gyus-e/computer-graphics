@@ -1,8 +1,9 @@
-#include "checkerror.h"
+#include <stdlib.h>
 #include <math.h>
-#include <GL/freeglut_std.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
+#include <GL/freeglut_std.h>
+#include "utils.h"
 
 /**
 Creare un prisma regolare con base ottagonale avente
@@ -16,50 +17,11 @@ del Volume di Visa prendendo come valori iniziali quelli di:
 glOrtho(-1, 1, -1, 1, 1, 5)
 */
 
-enum {LEFT, RIGHT, BOTTOM, TOP, NEAR, FAR};
-
-typedef struct {
-  GLdouble x;
-  GLdouble y;
-  GLdouble z;
-} Point;
-
 GLdouble view[6] = {-1.0, 1.0, -1.0, 1.0, 1.0, 5.0};
 GLdouble translate[3] = {0.0, 0.0, -3.0};
 GLdouble y_rotation = 0.0;
 GLdouble z_rotation = 0.0;
 
-Point getPoint(Point centro, const GLdouble raggio, const GLdouble angle) {
-  Point p;
-  p.x = centro.x + raggio * cos(angle);
-  p.y = centro.y + raggio * sin(angle);
-  p.z = centro.z;
-  return p;
-}
-
-GLvoid drawOctagon(Point centro, const GLdouble raggio, const GLdouble rgb[3]) {
-  const GLint sides = 8;
-  GLdouble angle, x, y, z;
-
-  glColor3f(rgb[0], rgb[1], rgb[2]);
-  glBegin(GL_TRIANGLE_FAN);
-    glVertex3f(0.2, 0.2, -1.5);
-    for (int i = 0; i <= sides; i++) {
-      angle = 2 * M_PI * i / sides;
-      Point p = getPoint(centro, raggio, angle);
-      glVertex3f(p.x, p.y, p.z);
-    }
-  glEnd();
-}
-
-GLvoid drawRectangle(const Point points[4], const GLdouble rgb[3]) {
-  glColor3f(rgb[0], rgb[1], rgb[2]);
-  glBegin(GL_QUADS);
-    for (int i = 0; i < 4; i++) {
-      glVertex3f(points[i].x, points[i].y, points[i].z);
-    }
-  glEnd();
-}
 
 GLvoid display() {
   const Point centro_base_inf = {0.2, 0.2, -0.5};
@@ -73,21 +35,21 @@ GLvoid display() {
   glClear(GL_COLOR_BUFFER_BIT);
   glRotatef(y_rotation, 0.0, 1.0, 0.0);
   glRotatef(z_rotation, 0.0, 0.0, 1.0);
-  drawOctagon(centro_base_inf, raggio, rgb);
-  drawOctagon(centro_base_sup, raggio, rgb);
+  drawInscribedPolygon(&centro_base_inf, raggio, 8, rgb);
+  drawInscribedPolygon(&centro_base_sup, raggio, 8, rgb);
   for (int i = 0; i <= 8; i++) {
     angle = 2 * M_PI * i / 8;
-    points[0] = getPoint(centro_base_inf, raggio, angle);
-    points[1] = getPoint(centro_base_sup, raggio, angle);
+    points[0] = getPointOnCircumference(&centro_base_inf, raggio, angle);
+    points[1] = getPointOnCircumference(&centro_base_sup, raggio, angle);
 
     angle = 2 * M_PI * (i + 1) / 8;
-    points[2] = getPoint(centro_base_sup, raggio, angle);
-    points[3] = getPoint(centro_base_inf, raggio, angle);
+    points[2] = getPointOnCircumference(&centro_base_sup, raggio, angle);
+    points[3] = getPointOnCircumference(&centro_base_inf, raggio, angle);
 
     drawRectangle(points, rgb);
   }
 
-  checkError("ESERCIZIO 1");
+  checkErrors("ESERCIZIO 1");
   glFlush();
 }
 
@@ -148,8 +110,8 @@ void keyboard(unsigned char key, GLint x, GLint y) {
       view[RIGHT] = 1.0;
       view[BOTTOM] = -1.0;
       view[TOP] = 1.0;
-      view[NEAR] = 1.0;
-      view[FAR] = 5.0;
+      view[NEAR_PLANE] = 1.0;
+      view[FAR_PLANE] = 5.0;
       y_rotation = 0.0;
       initWindow();
       glutPostRedisplay();
