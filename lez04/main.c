@@ -18,7 +18,7 @@ int sides = 4;
 void keyboard(unsigned char key, int x, int y);
 void mouse(int button, int state, int x, int y);
 
-void es1(void);
+void display(void);
 void es2(void);
 void es3(void);
 void es4(void);
@@ -41,7 +41,7 @@ int main(int argc, char **argv) {
   glutInitWindowSize(size, size);
   window[0] = glutCreateWindow(names[0]);
   glClearColor(0.0, 0.0, 0.0, 1.0);
-  glutDisplayFunc(es1);
+  glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
 
 
@@ -117,7 +117,7 @@ void mouse(int button, int state, int x, int y) {
 
 
 //ESERCIZIO 1: cerchio blu con centro rosso (sfumato)
-void es1(void) {
+void display(void) {
   float angle, x, y;
   int i;
 
