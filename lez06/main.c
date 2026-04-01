@@ -16,12 +16,7 @@ del Volume di Visa prendendo come valori iniziali quelli di:
 glOrtho(-1, 1, -1, 1, 1, 5)
 */
 
-#define LEFT 0
-#define RIGHT 1
-#define BOTTOM 2
-#define TOP 3
-#define NEAR 4
-#define FAR 5
+enum {LEFT, RIGHT, BOTTOM, TOP, NEAR, FAR};
 
 typedef struct {
   GLdouble x;
