@@ -14,8 +14,18 @@ rendere modificabili i tre valori di altezza larghezza e profondità
 del Volume di Visa prendendo come valori iniziali quelli di:
 glOrtho(-1, 1, -1, 1, 1, 5)
 */
+
+#define LEFT 0
+#define RIGHT 1
+#define BOTTOM 2
+#define TOP 3
+#define NEAR 4
+#define FAR 5
+
 GLdouble view[6] = {-1.0, 1.0, -1.0, 1.0, 1.0, 5.0};
 GLdouble translate[3] = {0.0, 0.0, -3.0};
+GLdouble y_rotation = 0.0;
+GLdouble z_rotation = 0.0;
 
 GLvoid drawOctagon(const GLdouble centro[3], const GLdouble raggio, const GLdouble rgb[3]) {
   const GLint sides = 8;
@@ -34,7 +44,7 @@ GLvoid drawOctagon(const GLdouble centro[3], const GLdouble raggio, const GLdoub
   glEnd();
 }
 
-GLvoid display( GLvoid ) {
+GLvoid display() {
   const GLdouble centro_base_inf[] = {0.2, 0.2, -0.5};
   const GLdouble centro_base_sup[] = {0.2, 0.2, -1.5};
   const GLdouble raggio = 0.5;
@@ -42,14 +52,15 @@ GLvoid display( GLvoid ) {
 
   glPointSize(1.0);
   glClear(GL_COLOR_BUFFER_BIT);
-  // glRotatef here
+  glRotatef(y_rotation, 0.0, 1.0, 0.0);
+  glRotatef(z_rotation, 0.0, 0.0, 1.0);
   drawOctagon(centro_base_inf, raggio, rgb);
   drawOctagon(centro_base_sup, raggio, rgb);
   //TODO: Draw the sides
   glFlush();
 }
 
-void initWindow() {
+GLvoid initWindow() {
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glEnable(GL_DEPTH_TEST);
   glLoadIdentity();
@@ -59,25 +70,56 @@ void initWindow() {
   glTranslatef(translate[0], translate[1], translate[2]);
 }
 
-void keyboard(unsigned char key, int x, int y) {
+void keyboard(unsigned char key, GLint x, GLint y) {
   switch (key) {
     case 'w':
-      view[2]+=0.1;
+      view[TOP]+=0.1;
+      initWindow();
+      glutPostRedisplay();
+      break;
+    case 'W':
+      view[TOP]-=0.1;
       initWindow();
       glutPostRedisplay();
       break;
     case 's':
-      view[2]-=0.1;
+      view[BOTTOM]+=0.1;
+      initWindow();
+      glutPostRedisplay();
+      break;
+    case 'S':
+      view[BOTTOM]-=0.1;
       initWindow();
       glutPostRedisplay();
       break;
     case 'a':
-      view[0]-=0.1;
+      view[LEFT]+=0.1;
+      initWindow();
+      glutPostRedisplay();
+      break;
+    case 'A':
+      view[LEFT]-=0.1;
       initWindow();
       glutPostRedisplay();
       break;
     case 'd':
-      view[0]+=0.1;
+      view[RIGHT]+=0.1;
+      initWindow();
+      glutPostRedisplay();
+      break;
+    case 'D':
+      view[RIGHT]-=0.1;
+      initWindow();
+      glutPostRedisplay();
+      break;
+    case 'r':
+      view[LEFT] = -1.0;
+      view[RIGHT] = 1.0;
+      view[BOTTOM] = -1.0;
+      view[TOP] = 1.0;
+      view[NEAR] = 1.0;
+      view[FAR] = 5.0;
+      y_rotation = 0.0;
       initWindow();
       glutPostRedisplay();
       break;
@@ -86,19 +128,26 @@ void keyboard(unsigned char key, int x, int y) {
   }
 }
 
-GLvoid mouse(int button, int state, int x, int y) {
+GLvoid mouse(GLint button, GLint state, GLint x, GLint y) {
   switch (button) {
     case GLUT_LEFT_BUTTON:
       if (state == GLUT_DOWN) {
         initWindow();
-        glRotatef(30, 0.0, 1.0, 0.0);
+        y_rotation += 30.0;
         glutPostRedisplay();
       }
       break;
     case GLUT_RIGHT_BUTTON:
       if (state == GLUT_DOWN) {
         initWindow();
-        glRotatef(-30, 0.0, 1.0, 0.0);
+        y_rotation -= 30.0;
+        glutPostRedisplay();
+      }
+      break;
+    case GLUT_MIDDLE_BUTTON:
+      if (state == GLUT_DOWN) {
+        initWindow();
+        z_rotation += 30.0;
         glutPostRedisplay();
       }
       break;
