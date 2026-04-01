@@ -4,8 +4,8 @@
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <math.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 /**
 Creare un prisma regolare con base ottagonale avente
@@ -23,14 +23,17 @@ GLvoid display();
 GLvoid setProjection();
 GLvoid keyboard(unsigned char key, GLint x, GLint y);
 GLvoid mouse(GLint button, GLint state, GLint x, GLint y);
-GLvoid gluPerspectiveWrapper(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_plane, GLdouble far_plane);
+GLvoid gluPerspectiveWrapper(GLdouble left, GLdouble right, GLdouble bottom,
+                             GLdouble top, GLdouble near_plane,
+                             GLdouble far_plane);
 
 const char *const WINDOW_TITLE = "Lezione 6 - Trasformazioni di Proiezione";
 GLdouble view[6] = {-1.0, 1.0, -1.0, 1.0, 1.0, 5.0};
 GLdouble translate[3] = {0.0, 0.0, -3.0};
 GLdouble y_rotation = 0.0;
 GLdouble z_rotation = 0.0;
-void (*projection_func)(GLdouble, GLdouble, GLdouble, GLdouble, GLdouble, GLdouble) = glOrtho;
+void (*projection_func)(GLdouble, GLdouble, GLdouble, GLdouble, GLdouble,
+                        GLdouble) = glOrtho;
 
 int main(int argc, char **argv) {
   const GLint size = 450;
@@ -55,7 +58,8 @@ int main(int argc, char **argv) {
 GLvoid setProjection() {
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  projection_func(view[LEFT], view[RIGHT], view[BOTTOM], view[TOP], view[NEAR_PLANE], view[FAR_PLANE]);
+  projection_func(view[LEFT], view[RIGHT], view[BOTTOM], view[TOP],
+                  view[NEAR_PLANE], view[FAR_PLANE]);
 }
 
 GLvoid display() {
@@ -67,7 +71,7 @@ GLvoid display() {
   Point points[4];
   GLdouble angle, x, y, z;
   int i;
-  
+
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
@@ -75,7 +79,7 @@ GLvoid display() {
   glTranslatef(translate[0], translate[1], translate[2]);
   glRotatef(y_rotation, 0.0, 1.0, 0.0);
   glRotatef(z_rotation, 0.0, 0.0, 1.0);
-  
+
   glPointSize(1.0);
   drawInscribedPolygon(&lower_base_center, radius, sides, rgb);
   drawInscribedPolygon(&upper_base_center, radius, sides, rgb);
@@ -99,63 +103,39 @@ GLvoid keyboard(unsigned char key, GLint x, GLint y) {
   switch (key) {
   case 'w':
     view[TOP] += 0.1;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 'W':
     view[TOP] -= 0.1;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 's':
     view[BOTTOM] += 0.1;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 'S':
     view[BOTTOM] -= 0.1;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 'a':
     view[LEFT] += 0.1;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 'A':
     view[LEFT] -= 0.1;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 'd':
     view[RIGHT] += 0.1;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 'D':
     view[RIGHT] -= 0.1;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 'q':
     view[NEAR_PLANE] += 0.1;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 'Q':
     view[NEAR_PLANE] -= 0.1;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 'e':
     view[FAR_PLANE] += 0.1;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 'E':
     view[FAR_PLANE] -= 0.1;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 'r':
     view[LEFT] = -1.0;
@@ -166,30 +146,24 @@ GLvoid keyboard(unsigned char key, GLint x, GLint y) {
     view[FAR_PLANE] = 5.0;
     y_rotation = 0.0;
     z_rotation = 0.0;
-    setProjection();
-    glutPostRedisplay();
     break;
   case '1':
     printf("Projection: glOrtho\n");
     projection_func = glOrtho;
-    setProjection();
-    glutPostRedisplay();
     break;
   case '2':
     printf("Projection: glFrustum\n");
     projection_func = glFrustum;
-    setProjection();
-    glutPostRedisplay();
     break;
   case '3':
     printf("Projection: gluPerspective\n");
     projection_func = gluPerspectiveWrapper;
-    setProjection();
-    glutPostRedisplay();
     break;
   case 27: // ESC key
     exit(0);
   }
+  setProjection();
+  glutPostRedisplay();
 }
 
 GLvoid mouse(GLint button, GLint state, GLint x, GLint y) {
@@ -218,6 +192,8 @@ GLvoid mouse(GLint button, GLint state, GLint x, GLint y) {
   }
 }
 
-GLvoid gluPerspectiveWrapper(GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_plane, GLdouble far_plane) {
+GLvoid gluPerspectiveWrapper(GLdouble left, GLdouble right, GLdouble bottom,
+                             GLdouble top, GLdouble near_plane,
+                             GLdouble far_plane) {
   gluPerspective(45.0, (right - left) / (top - bottom), near_plane, far_plane);
 }
