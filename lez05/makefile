@@ -1,14 +1,14 @@
 CC = clang
 LDLIBS = -lGL -lGLU -lglut -lm
 
-a.out: main.o checkerror.o
-	$(CC) main.o checkerror.o $(LDLIBS)
+a.out: main.o utils.o
+	$(CC) main.o utils.o $(LDLIBS)
 
-main.o: main.c
+main.o: main.c utils.h
 	$(CC) -c main.c
 
-checkerror.o: checkerror.c checkerror.h
-	$(CC) -c checkerror.c
+utils.o: utils.c utils.h
+	$(CC) -c utils.c
 
 clean:
 	rm -f a.out a.exe *.o

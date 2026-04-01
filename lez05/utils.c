@@ -17,38 +17,7 @@ Point getPointOnCircumference(const Point *center, const double radius,
   Point p;
   p.x = center->x + radius * cos(angle);
   p.y = center->y + radius * sin(angle);
-  p.z = center->z;
   return p;
-}
-
-int drawInscribedPolygon(const Point *center, const double radius,
-                         const int sides, const double rgb[3]) {
-  double angle, x, y, z;
-  int i;
-  if (sides < 3) {
-    return -1;
-  }
-  glColor3dv(rgb);
-  glBegin(GL_TRIANGLE_FAN);
-  glVertex3f(center->x, center->y, center->z);
-
-  for (i = 0; i <= sides; i++) {
-    angle = 2 * M_PI * i / sides;
-    Point p = getPointOnCircumference(center, radius, angle);
-    glVertex3f(p.x, p.y, p.z);
-  }
-  glEnd();
-  return GL_NO_ERROR;
-}
-
-void drawRectangle(const Point points[4], const double rgb[3]) {
-  int i;
-  glColor3dv(rgb);
-  glBegin(GL_QUADS);
-  for (i = 0; i < 4; i++) {
-    glVertex3f(points[i].x, points[i].y, points[i].z);
-  }
-  glEnd();
 }
 
 int drawStar(const Point *center, const int sides, const double r1, const double r2, const double rgb[3]) {
@@ -60,12 +29,12 @@ int drawStar(const Point *center, const int sides, const double r1, const double
   }
   glColor3dv(rgb);
   glBegin(GL_TRIANGLE_FAN);
-  glVertex3d(center->x, center->y, center->z);
+  glVertex2d(center->x, center->y);
 
   for (i = 0; i <= 2*sides; i++) {
     angle = 2 * M_PI * i / sides;
     Point p = getPointOnCircumference(center, radius[i % 2], angle);
-    glVertex3d(p.x, p.y, p.z);
+    glVertex2d(p.x, p.y);
   }
   glEnd();
   return GL_NO_ERROR;
