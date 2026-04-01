@@ -22,6 +22,7 @@ Point getPointOnCircumference(const Point *center, const double radius, const do
 
 int drawInscribedPolygon(const Point *center, const double radius, const int sides, const double rgb[3]) {
   double angle, x, y, z;
+  int i;
   if (sides < 3) {
     return -1;
   }
@@ -29,7 +30,7 @@ int drawInscribedPolygon(const Point *center, const double radius, const int sid
   glBegin(GL_TRIANGLE_FAN);
     glVertex3f(center->x, center->y, center->z);
 
-    for (int i = 0; i <= sides; i++) {
+    for (i = 0; i <= sides; i++) {
       angle = 2 * M_PI * i / sides;
       Point p = getPointOnCircumference(center, radius, angle);
       glVertex3f(p.x, p.y, p.z);
@@ -39,9 +40,10 @@ int drawInscribedPolygon(const Point *center, const double radius, const int sid
 }
 
 void drawRectangle(const Point points[4], const double rgb[3]) {
+  int i;
   glColor3f(rgb[0], rgb[1], rgb[2]);
   glBegin(GL_QUADS);
-    for (int i = 0; i < 4; i++) {
+    for (i = 0; i < 4; i++) {
       glVertex3f(points[i].x, points[i].y, points[i].z);
     }
   glEnd();

@@ -30,6 +30,7 @@ GLvoid display() {
   const GLdouble rgb[] = {0.0, 0.0, 1.0};
   Point points[4];
   GLdouble angle, x, y, z;
+  int i;
 
   glPointSize(1.0);
   glClear(GL_COLOR_BUFFER_BIT);
@@ -37,7 +38,7 @@ GLvoid display() {
   glRotatef(z_rotation, 0.0, 0.0, 1.0);
   drawInscribedPolygon(&centro_base_inf, raggio, 8, rgb);
   drawInscribedPolygon(&centro_base_sup, raggio, 8, rgb);
-  for (int i = 0; i <= 8; i++) {
+  for (i = 0; i <= 8; i++) {
     angle = 2 * M_PI * i / 8;
     points[0] = getPointOnCircumference(&centro_base_inf, raggio, angle);
     points[1] = getPointOnCircumference(&centro_base_sup, raggio, angle);
@@ -58,8 +59,8 @@ GLvoid initWindow() {
   glEnable(GL_DEPTH_TEST);
   glLoadIdentity();
 
-  // glOrtho(view[0], view[1], view[2], view[3], view[4], view[5]);
-  glFrustum(view[0], view[1], view[2], view[3], view[4], view[5]);
+  // glOrtho(view[LEFT], view[RIGHT], view[BOTTOM], view[TOP], view[NEAR_PLANE], view[FAR_PLANE]);
+  glFrustum(view[LEFT], view[RIGHT], view[BOTTOM], view[TOP], view[NEAR_PLANE], view[FAR_PLANE]);
   glTranslatef(translate[0], translate[1], translate[2]);
 }
 
