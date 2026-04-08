@@ -83,19 +83,7 @@ GLvoid display() {
   glScalef(scale[0], scale[1], scale[2]);
 
   glPointSize(1.0);
-  drawInscribedPolygon(&lower_base_center, radius, sides, rgb);
-  drawInscribedPolygon(&upper_base_center, radius, sides, rgb);
-  for (i = 0; i <= sides; i++) {
-    angle = 2 * M_PI * i / sides;
-    points[0] = getPointOnCircumference(&lower_base_center, radius, angle);
-    points[1] = getPointOnCircumference(&upper_base_center, radius, angle);
-
-    angle = 2 * M_PI * (i + 1) / sides;
-    points[2] = getPointOnCircumference(&upper_base_center, radius, angle);
-    points[3] = getPointOnCircumference(&lower_base_center, radius, angle);
-
-    drawRectangle(points, rgb);
-  }
+  drawPrism(sides, &lower_base_center, &upper_base_center, radius, rgb);
 
   checkErrors(WINDOW_TITLE);
   glFlush();

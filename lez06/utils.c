@@ -70,3 +70,27 @@ int drawStar(const Point *center, const int sides, const double r1, const double
   glEnd();
   return GL_NO_ERROR;
 }
+
+void drawPrism(const GLint sides,
+              const Point *lower_base_center,
+              const Point *upper_base_center,
+              const GLdouble radius,
+              const GLdouble rgb[3]) {
+  Point points[4];
+  GLdouble angle, x, y, z;
+  int i;
+
+  drawInscribedPolygon(lower_base_center, radius, sides, rgb);
+  drawInscribedPolygon(upper_base_center, radius, sides, rgb);
+  for (i = 0; i <= sides; i++) {
+    angle = 2 * M_PI * i / sides;
+    points[0] = getPointOnCircumference(lower_base_center, radius, angle);
+    points[1] = getPointOnCircumference(upper_base_center, radius, angle);
+
+    angle = 2 * M_PI * (i + 1) / sides;
+    points[2] = getPointOnCircumference(upper_base_center, radius, angle);
+    points[3] = getPointOnCircumference(lower_base_center, radius, angle);
+
+    drawRectangle(points, rgb);
+  }
+}
