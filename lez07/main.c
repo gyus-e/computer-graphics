@@ -20,6 +20,7 @@ STOP lo ferma
 RESET lo azzera
 lancetta dei secondi avanza ogni secondo
 lancetta minuti avanza ogni qualvolta la lancetta dei secondi completa un giro
+Mostrare numeri sul quadrante.
 */
 
 const int second = 360.0/60.0;
@@ -46,7 +47,21 @@ void display() {
   glPointSize(2.0);
 
   drawInscribedPolygon(&center, radius, sides, rgb);
+  
   glColor3d(0.0, 0.0, 0.0);
+  for (int i = 12; i > 0 ; --i) {
+    double angle = 2*M_PI - i*hour*2*M_PI/360.0 + M_PI/2.0;
+
+    double x = (radius-0.1)*cos(angle);
+    double y = (radius-0.1)*sin(angle);
+    glRasterPos2d(x, y);
+    
+    char number[3];
+    sprintf(number, "%d", i);
+    for (char *c = number; *c != '\0'; ++c) {
+      glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
+    }
+  }
 
   glPushMatrix();
   glRotatef(secondsRotation, 0.0, 0.0, 1.0);
@@ -55,9 +70,6 @@ void display() {
     glVertex3d(0.0, 0.45, 0.0);
   glEnd();
   glPopMatrix();
-
-
-  glPointSize(4.0);
 
   glPushMatrix();
   glRotatef(minutesRotation, 0.0, 0.0, 1.0);
