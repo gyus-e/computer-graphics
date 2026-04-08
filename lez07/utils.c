@@ -94,3 +94,53 @@ void drawPrism(const GLint sides,
     drawRectangle(points, rgb);
   }
 }
+
+void draw2DClock(const Point *center, const double radius, const double secondsRotation, const double minutesRotation, const double hoursRotation, const double bg[3], const double fg[3]) {
+  const int sides = 360;
+
+  drawInscribedPolygon(center, radius, sides, bg);
+  
+  glColor3dv(fg);
+  for (int i = 12; i > 0 ; --i) {
+    double angle = 2*M_PI - i*hour*2*M_PI/360.0 + M_PI/2.0;
+    double x = (radius-0.1)*cos(angle);
+    double y = (radius-0.1)*sin(angle);
+    glRasterPos3d(x, y, 0.0);
+    
+    char number[3];
+    sprintf(number, "%d", i);
+    for (char *c = number; *c != '\0'; ++c) {
+      glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
+    }
+  }
+  
+  glPushMatrix();
+  glRotated(secondsRotation, 0.0, 0.0, 1.0);
+  glBegin(GL_LINES);
+    glVertex3d(center->x, center->y, center->z);
+    glVertex3d(0.0, 0.45, 0.0);
+  glEnd();
+  glPopMatrix();
+
+  glPushMatrix();
+  glRotated(minutesRotation, 0.0, 0.0, 1.0);
+  glBegin(GL_LINES);
+    glVertex3d(center->x, center->y, center->z);
+    glVertex3d(0.0, 0.4, 0.0);
+  glEnd();
+  glPopMatrix();
+
+  glPushMatrix();
+  glRotated(hoursRotation, 0.0, 0.0, 1.0);
+  glBegin(GL_LINES);
+    glVertex3d(center->x, center->y, center->z);
+    glVertex3d(0.25, 0.0, 0.0);
+  glEnd();
+  glPopMatrix();
+}
+
+void draw3DClock(const Point *center, const double radius, const double secondsRotation, const double minutesRotation, const double hoursRotation, const double bg[3], const double fg[3]) {
+  Point backCenter = {center->x, center->y, center->z - 0.5};
+  draw2DClock(center, radius, secondsRotation, minutesRotation, hoursRotation, bg, fg);
+  draw2DClock(&backCenter, radius, secondsRotation, minutesRotation, hoursRotation, bg, bg);
+}

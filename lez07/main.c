@@ -3,9 +3,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 /**
 1: Modellare un orologio 2D
@@ -23,10 +20,6 @@ lancetta minuti avanza ogni qualvolta la lancetta dei secondi completa un giro
 Mostrare numeri sul quadrante.
 */
 
-const int second = 360.0/60.0;
-const int minute = 360.0/60.0;
-const int hour = 360.0/12.0;
-
 GLdouble secondsRotation = 0.0;
 GLdouble minutesRotation = 0.0;
 GLdouble hoursRotation = 0.0;
@@ -38,54 +31,13 @@ void display() {
   const int sides = 360;
   const Point center = {0.0, 0.0, 0.0};
   const double radius = 0.5;
-  const double white[] = {1.0, 1.0, 1.0};
-  const double black[] = {0.0, 0.0, 0.0};
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
   glPointSize(2.0);
-  drawInscribedPolygon(&center, radius, sides, white);
-  
-  glColor3dv(black);
-  for (int i = 12; i > 0 ; --i) {
-    double angle = 2*M_PI - i*hour*2*M_PI/360.0 + M_PI/2.0;
-    double x = (radius-0.1)*cos(angle);
-    double y = (radius-0.1)*sin(angle);
-    glRasterPos2d(x, y);
-    
-    char number[3];
-    sprintf(number, "%d", i);
-    for (char *c = number; *c != '\0'; ++c) {
-      glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *c);
-    }
-  }
-
-  glPushMatrix();
-  glRotatef(secondsRotation, 0.0, 0.0, 1.0);
-  glBegin(GL_LINES);
-    glVertex3d(center.x, center.y, center.z);
-    glVertex3d(0.0, 0.45, 0.0);
-  glEnd();
-  glPopMatrix();
-
-  glPushMatrix();
-  glRotatef(minutesRotation, 0.0, 0.0, 1.0);
-  glBegin(GL_LINES);
-    glVertex3d(center.x, center.y, center.z);
-    glVertex3d(0.0, 0.4, 0.0);
-  glEnd();
-  glPopMatrix();
-
-  glPushMatrix();
-  glRotatef(hoursRotation, 0.0, 0.0, 1.0);
-  glBegin(GL_LINES);
-    glVertex3d(center.x, center.y, center.z);
-    glVertex3d(0.25, 0.0, 0.0);
-  glEnd();
-  glPopMatrix();
-
+  draw2DClock(&center, radius, secondsRotation, minutesRotation, hoursRotation, white, black);
   checkErrors("Orologio 2D");
   glFlush();
 }
