@@ -22,9 +22,15 @@ lancetta dei secondi avanza ogni secondo
 lancetta minuti avanza ogni qualvolta la lancetta dei secondi completa un giro
 */
 
+const int second = 360.0/60.0;
+const int minute = 360.0/60.0;
+const int hour = 360.0/12.0;
+
 GLdouble secondsRotation = 0.0;
 GLdouble minutesRotation = 0.0;
 GLdouble hoursRotation = 0.0;
+
+GLdouble speed = 0.1;
 int pause = 0;
 
 void display() {
@@ -37,7 +43,7 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glPointSize(1.0);
+  glPointSize(2.0);
 
   drawInscribedPolygon(&center, radius, sides, rgb);
   glColor3d(0.0, 0.0, 0.0);
@@ -46,15 +52,18 @@ void display() {
   glRotatef(secondsRotation, 0.0, 0.0, 1.0);
   glBegin(GL_LINES);
     glVertex3d(center.x, center.y, center.z);
-    glVertex3d(0.0, 0.75, 0.0);
+    glVertex3d(0.0, 0.45, 0.0);
   glEnd();
   glPopMatrix();
+
+
+  glPointSize(4.0);
 
   glPushMatrix();
   glRotatef(minutesRotation, 0.0, 0.0, 1.0);
   glBegin(GL_LINES);
     glVertex3d(center.x, center.y, center.z);
-    glVertex3d(0.0, 0.5, 0.0);
+    glVertex3d(0.0, 0.4, 0.0);
   glEnd();
   glPopMatrix();
 
@@ -71,8 +80,6 @@ void display() {
 }
 
 GLvoid mouse(GLint button, GLint state, GLint x, GLint y) {
-  const int hour = 360.0/12.0;
-  const int minute = 360.0/60.0;
   int minutes_per_click = 10;
   
   switch (button) {
@@ -98,29 +105,25 @@ GLvoid mouse(GLint button, GLint state, GLint x, GLint y) {
 }
 
 GLvoid timer(GLint value) {
-  const int second = 360.0/60.0;
-  const int minute = 360.0/60.0;
-  const int hour = 360.0/12.0;
-
   if (pause) {
     return;
   }
   secondsRotation -= second;
   if ((int) secondsRotation % 360 == 0) {
-    minutesRotation += minute;
+    minutesRotation -= minute;
     if ((int) minutesRotation % 360 == 0) {
-      hoursRotation += hour;
+      hoursRotation -= hour;
     }
   }
   glutPostRedisplay();
-  glutTimerFunc(1000, timer, 0);
+  glutTimerFunc(speed*1000, timer, 0);
 }
 
 GLvoid keyboard(unsigned char key, int x, int y) {
   switch (key) {
   case 's':
     pause = 0;
-    glutTimerFunc(1000, timer, 0);
+    glutTimerFunc(speed*1000, timer, 0);
     break;
   case 'p':
     pause = 1;
