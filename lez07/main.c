@@ -32,26 +32,25 @@ GLdouble minutesRotation = 0.0;
 GLdouble hoursRotation = 0.0;
 
 GLdouble speed = 0.1;
-int pause = 0;
+int pause = 1;
 
 void display() {
   const int sides = 360;
   const Point center = {0.0, 0.0, 0.0};
   const double radius = 0.5;
-  const double rgb[] = {1.0, 1.0, 1.0};
+  const double white[] = {1.0, 1.0, 1.0};
+  const double black[] = {0.0, 0.0, 0.0};
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
   glPointSize(2.0);
-
-  drawInscribedPolygon(&center, radius, sides, rgb);
+  drawInscribedPolygon(&center, radius, sides, white);
   
-  glColor3d(0.0, 0.0, 0.0);
+  glColor3dv(black);
   for (int i = 12; i > 0 ; --i) {
     double angle = 2*M_PI - i*hour*2*M_PI/360.0 + M_PI/2.0;
-
     double x = (radius-0.1)*cos(angle);
     double y = (radius-0.1)*sin(angle);
     glRasterPos2d(x, y);
@@ -134,8 +133,10 @@ GLvoid timer(GLint value) {
 GLvoid keyboard(unsigned char key, int x, int y) {
   switch (key) {
   case 's':
-    pause = 0;
-    glutTimerFunc(speed*1000, timer, 0);
+    if (pause == 1) {
+        pause = 0;
+        glutTimerFunc(speed*1000, timer, 0);
+    }
     break;
   case 'p':
     pause = 1;
@@ -144,6 +145,7 @@ GLvoid keyboard(unsigned char key, int x, int y) {
     secondsRotation = 0.0;
     minutesRotation = 0.0;
     hoursRotation = 0.0;
+    pause = 1;
     glutPostRedisplay();
     break;
   }
