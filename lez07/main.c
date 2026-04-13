@@ -23,6 +23,7 @@ Mostrare numeri sul quadrante.
 GLdouble secondsRotation = 0.0;
 GLdouble minutesRotation = 0.0;
 GLdouble hoursRotation = 0.0;
+GLdouble clockRotation = 0.0;
 
 GLdouble speed = 0.1;
 int pause = 1;
@@ -37,6 +38,7 @@ void display() {
   glLoadIdentity();
 
   glPointSize(2.0);
+  glRotated(clockRotation, 0, 1, 0);
   draw2DClock(&center, radius, secondsRotation, minutesRotation, hoursRotation, white, black);
   checkErrors("Orologio 2D");
   glFlush();
@@ -100,12 +102,20 @@ GLvoid keyboard(unsigned char key, int x, int y) {
     pause = 1;
     glutPostRedisplay();
     break;
+  case 'a':
+    clockRotation += 20.0;
+    glutPostRedisplay();
+    break;
+  case 'd':
+    clockRotation -= 20.0;
+    glutPostRedisplay();
+    break;
   }
 }
 
 int main(int argc, char **argv) {
   glutInit(&argc, argv);
-  glutInitDisplayMode(GLUT_RGB);
+  glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);
   glutInitWindowPosition(0, 0);
   glutInitWindowSize(500, 500);
   int window = glutCreateWindow("Orologio 2D");
