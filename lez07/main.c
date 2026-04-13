@@ -39,7 +39,7 @@ void display() {
 
   glPointSize(2.0);
   glRotated(clockRotation, 0, 1, 0);
-  draw2DClock(&center, radius, secondsRotation, minutesRotation, hoursRotation, white, black);
+  draw3DClock(&center, radius, secondsRotation, minutesRotation, hoursRotation, white, black);
   checkErrors("Orologio 2D");
   glFlush();
 }

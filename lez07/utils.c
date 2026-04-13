@@ -142,5 +142,5 @@ void draw2DClock(const Point *center, const double radius, const double secondsR
 void draw3DClock(const Point *center, const double radius, const double secondsRotation, const double minutesRotation, const double hoursRotation, const double bg[3], const double fg[3]) {
   Point backCenter = {center->x, center->y, center->z - 0.5};
   draw2DClock(center, radius, secondsRotation, minutesRotation, hoursRotation, bg, fg);
-  draw2DClock(&backCenter, radius, secondsRotation, minutesRotation, hoursRotation, bg, bg);
+  draw2DClock(&backCenter, radius, secondsRotation, minutesRotation, hoursRotation, bg, fg);
 }
