@@ -145,11 +145,11 @@ void draw3DClock(const Point *center, const double radius, const double secondsR
   draw2DClock(&backCenter, radius, secondsRotation, minutesRotation, hoursRotation, bg, fg);
 }
 
-Point newell(Point *verts, unsigned int numVerts) {
+Point newell(const Point *verts, const unsigned int numVerts) {
     Point normal = {0.0, 0.0, 0.0};
     for (unsigned int i = 0; i < numVerts; i++) {
-        Point p = verts[i];
-        Point next = verts[(i + 1) % numVerts];
+        const Point p = verts[i];
+        const Point next = verts[(i + 1) % numVerts];
         normal.x += (p.y - next.y) * (p.z + next.z);
         normal.y += (p.z - next.z) * (p.x + next.x);
         normal.z += (p.x - next.x) * (p.y + next.y);
