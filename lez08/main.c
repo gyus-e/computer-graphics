@@ -3,7 +3,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
-#include <stdio.h>
+#include <math.h>
 
 /**
 Poliedro - casa
@@ -29,6 +29,19 @@ Point verts[8] = {
     {L, L, -L},
     {L, -L, -L}
 };
+
+
+
+void rotateEyePosition(double angle) {
+  double s = sin(angle);
+  double c = cos(angle);
+
+  double x = eyePosition.x * c - eyePosition.z * s;
+  double z = eyePosition.x * s + eyePosition.z * c;
+
+  eyePosition.x = x;
+  eyePosition.z = z;
+}
 
 
 
@@ -61,21 +74,32 @@ void display() {
             lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
             upVector.x, upVector.y, upVector.z);
 
+  // base_verts = v in verts where v.y == -L  
+  Point base_verts[4] = {verts[0], verts[3], verts[4], verts[7]};
+
+  Point baseNormal = newell(base_verts, 4);
+  Point frontFaceNormal = newell(verts, 4);
+  Point backFaceNormal = newell(verts + 4, 4);
 
   glPushMatrix();
   glColor3d(1.0, 0.0, 0.0);
   glBegin(GL_QUADS);
-    Point frontFaceNormal = newell(verts, 4);
+
+    glNormal3d(baseNormal.x, baseNormal.y, baseNormal.z);
+    for (int i = 0; i < 4; i++) {
+      glVertex3d(base_verts[i].x, base_verts[i].y, base_verts[i].z);
+    }
+
     glNormal3d(frontFaceNormal.x, frontFaceNormal.y, frontFaceNormal.z);
     for (int i = 0; i < 4; i++) {
       glVertex3d(verts[i].x, verts[i].y, verts[i].z);
     }
-    
-    Point backFaceNormal = newell(verts + 4, 4);
+
     glNormal3d(backFaceNormal.x, backFaceNormal.y, backFaceNormal.z);
     for (int i = 4; i < 8; i++) {
       glVertex3d(verts[i].x, verts[i].y, verts[i].z);
     }
+
   glEnd();
   glPopMatrix();
 
@@ -85,7 +109,18 @@ void display() {
 
 
 GLvoid keyboard(unsigned char key, int x, int y) {
-  
+  switch (key) {
+    case 'a':
+      rotateEyePosition(-M_PI / 16.0);
+      break;
+    case 'd':
+      rotateEyePosition(M_PI / 16.0);
+      break;
+    case 27: // ESC
+      exit(0);
+      break;
+  }
+  glutPostRedisplay();
 }
 
 
