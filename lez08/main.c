@@ -16,10 +16,10 @@ Point eyePosition = {0.0, 0.0, 2.0};
 const Point lookAtPoint = {0.0, 0.0, 0.0};
 const Point upVector = {0.0, 1.0, 0.0};
 
-Mesh cube;
-const unsigned int numFaces = 6;
-const unsigned int numVerts = 8;
-const Point verts[8] = {
+Mesh house;
+const unsigned int numFaces = 7;
+const unsigned int numVerts = 10;
+const Point verts[10] = {
   {O, O, O},
   {O, O, I},
   {O, I, O},
@@ -27,7 +27,9 @@ const Point verts[8] = {
   {I, O, O},
   {I, O, I},
   {I, I, O},
-  {I, I, I}
+  {I, I, I},
+  {0.0, 1.0, O},
+  {0.0, 1.0, I}
 };
 
 
@@ -96,6 +98,7 @@ void reshape(int width, int height) {
 
 
 void display() {
+  Face *f;
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glClearDepth(50.0);
   glEnable(GL_DEPTH_TEST);
@@ -111,24 +114,38 @@ void display() {
   glShadeModel(GL_FLAT);
 
   glPushMatrix();
-  gluLookAt(eyePosition.x, eyePosition.y, eyePosition.z,
-            lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
-            upVector.x, upVector.y, upVector.z);
+    gluLookAt(eyePosition.x, eyePosition.y, eyePosition.z,
+              lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
+              upVector.x, upVector.y, upVector.z);
 
-  glPushMatrix();
-  glColor3d(0.0, 0.0, 1.0);
-  glBegin(GL_QUADS);
-    for (int i = 0; i < cube.numFaces; i++) {
-      Face *f = &(cube.faces[i]);
-      
-      glNormal3d(f->normal.x, f->normal.y, f->normal.z);
-      for (int j = 0; j < f->numVerts; j++) {
-        glVertex3d(f->verts[j].x, f->verts[j].y, f->verts[j].z);
-      }
-    }
-  glEnd();
-  glPopMatrix();
+    glPushMatrix();
+      glColor3d(0.0, 0.0, 1.0);
 
+      glBegin(GL_POLYGON);
+        f = &(house.faces[0]);
+        glNormal3d(f->normal.x, f->normal.y, f->normal.z);
+        for (int j = 0; j < f->numVerts; j++) {
+          glVertex3d(f->verts[j].x, f->verts[j].y, f->verts[j].z);
+        }
+      glEnd();
+      glBegin(GL_QUADS);
+        for (int i = 1; i < house.numFaces - 1; i++) {
+          f = &(house.faces[i]);
+          
+          glNormal3d(f->normal.x, f->normal.y, f->normal.z);
+          for (int j = 0; j < f->numVerts; j++) {
+            glVertex3d(f->verts[j].x, f->verts[j].y, f->verts[j].z);
+          }
+        }
+      glEnd();
+      glBegin(GL_POLYGON);
+        f = &(house.faces[house.numFaces - 1]);
+        glNormal3d(f->normal.x, f->normal.y, f->normal.z);
+        for (int j = 0; j < f->numVerts; j++) {
+          glVertex3d(f->verts[j].x, f->verts[j].y, f->verts[j].z);
+        }
+      glEnd();
+    glPopMatrix();
   glPopMatrix();
   glFlush();
 }
@@ -136,52 +153,65 @@ void display() {
 
 
 int main(int argc, char **argv) {
-  cube.numFaces = numFaces;
-  cube.faces = malloc(numFaces * sizeof(Face));
+  house.numFaces = numFaces;
+  house.faces = malloc(house.numFaces * sizeof(Face));
 
-  for (int i = 0; i < numFaces; i++) {
-    cube.faces[i].numVerts = 4;
-    cube.faces[i].verts = malloc(cube.faces[i].numVerts * sizeof(Point));
+  house.faces[0].numVerts = 5;
+  for (int i = 1; i < house.numFaces - 1; i++) {
+    house.faces[i].numVerts = 4;
+  }
+  house.faces[house.numFaces - 1].numVerts = 5;
+
+  for (int i = 0; i < house.numFaces; i++) {
+    house.faces[i].verts = malloc(house.faces[i].numVerts * sizeof(Point));
   }
 
   // back
-  cube.faces[0].verts[0] = verts[0];
-  cube.faces[0].verts[1] = verts[2];
-  cube.faces[0].verts[2] = verts[6];
-  cube.faces[0].verts[3] = verts[4];
-
-  // left
-  cube.faces[1].verts[0] = verts[0];
-  cube.faces[1].verts[1] = verts[1];
-  cube.faces[1].verts[2] = verts[3];
-  cube.faces[1].verts[3] = verts[2];
+  house.faces[0].verts[0] = verts[0];
+  house.faces[0].verts[1] = verts[2];
+  house.faces[0].verts[2] = verts[8];
+  house.faces[0].verts[3] = verts[6];
+  house.faces[0].verts[4] = verts[4];
 
   // base 
-  cube.faces[2].verts[0] = verts[0];
-  cube.faces[2].verts[1] = verts[4];
-  cube.faces[2].verts[2] = verts[5];
-  cube.faces[2].verts[3] = verts[1];
+  house.faces[1].verts[0] = verts[0];
+  house.faces[1].verts[1] = verts[4];
+  house.faces[1].verts[2] = verts[5];
+  house.faces[1].verts[3] = verts[1];
+
+  // left
+  house.faces[2].verts[0] = verts[0];
+  house.faces[2].verts[1] = verts[1];
+  house.faces[2].verts[2] = verts[3];
+  house.faces[2].verts[3] = verts[2];
 
   // right
-  cube.faces[3].verts[0] = verts[4];
-  cube.faces[3].verts[1] = verts[6];
-  cube.faces[3].verts[2] = verts[7];
-  cube.faces[3].verts[3] = verts[5];
+  house.faces[3].verts[0] = verts[4];
+  house.faces[3].verts[1] = verts[6];
+  house.faces[3].verts[2] = verts[7];
+  house.faces[3].verts[3] = verts[5];
 
-  // top
-  cube.faces[4].verts[0] = verts[2];
-  cube.faces[4].verts[1] = verts[3];
-  cube.faces[4].verts[2] = verts[7];
-  cube.faces[4].verts[3] = verts[6];
+  // roof left
+  house.faces[4].verts[0] = verts[2];
+  house.faces[4].verts[1] = verts[3];
+  house.faces[4].verts[2] = verts[9];
+  house.faces[4].verts[3] = verts[8];
+
+  // roof right
+  house.faces[5].verts[0] = verts[7];
+  house.faces[5].verts[1] = verts[6];
+  house.faces[5].verts[2] = verts[8];
+  house.faces[5].verts[3] = verts[9];
 
   // front
-  cube.faces[5].verts[0] = verts[1];
-  cube.faces[5].verts[1] = verts[5];
-  cube.faces[5].verts[2] = verts[7];
-  cube.faces[5].verts[3] = verts[3];
+  house.faces[6].verts[0] = verts[5];
+  house.faces[6].verts[1] = verts[7];
+  house.faces[6].verts[2] = verts[9];
+  house.faces[6].verts[3] = verts[3];
+  house.faces[6].verts[4] = verts[1];
 
-  for (int i = 0; i < cube.numFaces; i++) {
-    cube.faces[i].normal = newell(cube.faces[i].verts, cube.faces[i].numVerts);
+  for (int i = 0; i < house.numFaces; i++) {
+    house.faces[i].normal = newell(house.faces[i].verts, house.faces[i].numVerts);
   }
   
   glutInit(&argc, argv);
@@ -194,9 +224,9 @@ int main(int argc, char **argv) {
   glutKeyboardFunc(keyboard);
   glutMainLoop();
 
-  for (int i = 0; i < cube.numFaces; i++) {
-    free(cube.faces[i].verts);
+  for (int i = 0; i < house.numFaces; i++) {
+    free(house.faces[i].verts);
   }
-  free(cube.faces);
+  free(house.faces);
   return 0;
 }
