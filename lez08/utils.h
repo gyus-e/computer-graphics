@@ -9,15 +9,13 @@ typedef struct {
 
 typedef struct {
   unsigned int numVerts;
-  Point verts[];
+  Point normal;
+  Point *verts;
 } Face;
 
 typedef struct {
-    const unsigned int numVerts;
-    const unsigned int numFaces;
-    Point *verts;
+    unsigned int numFaces;
     Face *faces;
-    Point *norms;
 } Mesh;
 
 enum {LEFT, RIGHT, BOTTOM, TOP, NEAR_PLANE, FAR_PLANE};
