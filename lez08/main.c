@@ -69,17 +69,24 @@ void reshape(int width, int height) {
 
 
 void display() {
+  
   const Point front_verts[4] = {verts[1], verts[5], verts[7], verts[3]}; // vertici dispari, senso antiorario
   const Point back_verts[4] = {verts[0], verts[2], verts[6], verts[4]}; // vertici pari, senso orario
   const Point base_verts[4] = {verts[0], verts[4], verts[5], verts[1]};
   const Point top_verts[4] = {verts[2], verts[3], verts[7], verts[6]};
+  const Point left_verts[4] = {verts[0], verts[1], verts[3], verts[2]};
+  const Point right_verts[4] = {verts[4], verts[6], verts[7], verts[5]};
 
   const Point frontFaceNormal = newell(front_verts, 4);
   const Point backFaceNormal = newell(back_verts, 4);
   const Point baseNormal = newell(base_verts, 4);
   const Point topNormal = newell(top_verts, 4);
+  const Point leftNormal = newell(left_verts, 4);
+  const Point rightNormal = newell(right_verts, 4);
 
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glClearDepth(50.0);
+  glEnable(GL_DEPTH_TEST);
   
   glEnable(GL_LIGHTING);
   glEnable(GL_LIGHT0);
@@ -91,41 +98,48 @@ void display() {
   
   glShadeModel(GL_FLAT);
 
+  glPushMatrix();
   gluLookAt(eyePosition.x, eyePosition.y, eyePosition.z,
             lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
             upVector.x, upVector.y, upVector.z);
 
   glPushMatrix();
+  glColor3d(0.0, 0.0, 1.0);
   glBegin(GL_QUADS);
 
-    glColor3d(0.0, 0.0, 1.0);
     glNormal3d(backFaceNormal.x, backFaceNormal.y, backFaceNormal.z);
     for (int i = 0; i < 4; i++) {
       glVertex3d(back_verts[i].x, back_verts[i].y, back_verts[i].z);
     }
 
-    glColor3d(1.0, 0.0, 0.0);
+    glNormal3d(leftNormal.x, leftNormal.y, leftNormal.z);
+    for (int i = 0; i < 4; i++) {
+      glVertex3d(left_verts[i].x, left_verts[i].y, left_verts[i].z);
+    }
+
     glNormal3d(baseNormal.x, baseNormal.y, baseNormal.z);
     for (int i = 0; i < 4; i++) {
       glVertex3d(base_verts[i].x, base_verts[i].y, base_verts[i].z);
     }
 
-    glColor3d(1.0, 0.0, 0.0);
+    glNormal3d(rightNormal.x, rightNormal.y, rightNormal.z);
+    for (int i = 0; i < 4; i++) {
+      glVertex3d(right_verts[i].x, right_verts[i].y, right_verts[i].z);
+    }
+
     glNormal3d(topNormal.x, topNormal.y, topNormal.z);
     for (int i = 0; i < 4; i++) {
       glVertex3d(top_verts[i].x, top_verts[i].y, top_verts[i].z);
     }
 
-    glColor3d(0.0, 1.0, 0.0);
     glNormal3d(frontFaceNormal.x, frontFaceNormal.y, frontFaceNormal.z);
     for (int i = 0; i < 4; i++) {
       glVertex3d(front_verts[i].x, front_verts[i].y, front_verts[i].z);
     }
-
-
   glEnd();
   glPopMatrix();
 
+  glPopMatrix();
   glFlush();
 }
 
