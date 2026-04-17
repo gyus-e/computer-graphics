@@ -36,6 +36,7 @@ void drawRectangle(const Point points[4], const double rgb[3]);
 void drawPrism(const int sides, const Point *lower_base_center, const Point *upper_base_center, const double radius, const double rgb[3]);
 void draw2DClock(const Point *center, const double radius, const double secondsRotation, const double minutesRotation, const double hoursRotation, const double bg[3], const double fg[3]);
 void draw3DClock(const Point *center, const double radius, const double secondsRotation, const double minutesRotation, const double hoursRotation, const double bg[3], const double fg[3]);
+void drawPolyedron(const Mesh *mesh);
 Point newell(const Point *verts, const unsigned int numVerts);
 
 #endif // UTILS_H

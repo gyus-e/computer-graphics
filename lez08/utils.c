@@ -5,12 +5,16 @@
 #include <math.h>
 #include <stdio.h>
 
+
+
 void checkErrors(const char *label) {
   GLenum err;
   while ((err = glGetError()) != GL_NO_ERROR) {
     fprintf(stderr, "%s: %s\n", label, gluErrorString(err));
   }
 }
+
+
 
 Point getPointOnCircumference(const Point *center, const double radius,
                               const double angle) {
@@ -20,6 +24,8 @@ Point getPointOnCircumference(const Point *center, const double radius,
   p.z = center->z;
   return p;
 }
+
+
 
 int drawInscribedPolygon(const Point *center, const double radius,
                          const int sides, const double rgb[3]) {
@@ -41,6 +47,8 @@ int drawInscribedPolygon(const Point *center, const double radius,
   return GL_NO_ERROR;
 }
 
+
+
 void drawRectangle(const Point points[4], const double rgb[3]) {
   int i;
   glColor3dv(rgb);
@@ -50,6 +58,8 @@ void drawRectangle(const Point points[4], const double rgb[3]) {
   }
   glEnd();
 }
+
+
 
 int drawStar(const Point *center, const int sides, const double r1, const double r2, const double rgb[3]) {
   const double radius[2] = {r1, r2};
@@ -70,6 +80,8 @@ int drawStar(const Point *center, const int sides, const double r1, const double
   glEnd();
   return GL_NO_ERROR;
 }
+
+
 
 void drawPrism(const GLint sides,
               const Point *lower_base_center,
@@ -94,6 +106,8 @@ void drawPrism(const GLint sides,
     drawRectangle(points, rgb);
   }
 }
+
+
 
 void draw2DClock(const Point *center, const double radius, const double secondsRotation, const double minutesRotation, const double hoursRotation, const double bg[3], const double fg[3]) {
   const int sides = 360;
@@ -139,11 +153,30 @@ void draw2DClock(const Point *center, const double radius, const double secondsR
   glPopMatrix();
 }
 
+
+
 void draw3DClock(const Point *center, const double radius, const double secondsRotation, const double minutesRotation, const double hoursRotation, const double bg[3], const double fg[3]) {
   Point backCenter = {center->x, center->y, center->z - 0.5};
   draw2DClock(center, radius, secondsRotation, minutesRotation, hoursRotation, bg, fg);
   draw2DClock(&backCenter, radius, secondsRotation, minutesRotation, hoursRotation, bg, fg);
 }
+
+
+
+void drawPolyedron(const Mesh *mesh){
+  Face *f;
+  for (int i = 0; i < mesh->numFaces; i++) {
+    f = &(mesh->faces[i]);
+    glBegin(GL_POLYGON);
+      glNormal3d(f->normal.x, f->normal.y, f->normal.z);
+      for (int j = 0; j < f->numVerts; j++) {
+        glVertex3d(f->verts[j].x, f->verts[j].y, f->verts[j].z);
+      }
+    glEnd();
+  }
+}
+
+
 
 Point newell(const Point *verts, const unsigned int numVerts) {
     Point normal = {0.0, 0.0, 0.0};

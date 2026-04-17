@@ -98,7 +98,6 @@ void reshape(int width, int height) {
 
 
 void display() {
-  Face *f;
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glClearDepth(50.0);
   glEnable(GL_DEPTH_TEST);
@@ -120,31 +119,7 @@ void display() {
 
     glPushMatrix();
       glColor3d(0.0, 0.0, 1.0);
-
-      glBegin(GL_POLYGON);
-        f = &(house.faces[0]);
-        glNormal3d(f->normal.x, f->normal.y, f->normal.z);
-        for (int j = 0; j < f->numVerts; j++) {
-          glVertex3d(f->verts[j].x, f->verts[j].y, f->verts[j].z);
-        }
-      glEnd();
-      glBegin(GL_QUADS);
-        for (int i = 1; i < house.numFaces - 1; i++) {
-          f = &(house.faces[i]);
-          
-          glNormal3d(f->normal.x, f->normal.y, f->normal.z);
-          for (int j = 0; j < f->numVerts; j++) {
-            glVertex3d(f->verts[j].x, f->verts[j].y, f->verts[j].z);
-          }
-        }
-      glEnd();
-      glBegin(GL_POLYGON);
-        f = &(house.faces[house.numFaces - 1]);
-        glNormal3d(f->normal.x, f->normal.y, f->normal.z);
-        for (int j = 0; j < f->numVerts; j++) {
-          glVertex3d(f->verts[j].x, f->verts[j].y, f->verts[j].z);
-        }
-      glEnd();
+      drawPolyedron(&house);
     glPopMatrix();
   glPopMatrix();
   glFlush();
