@@ -8,9 +8,15 @@ typedef struct {
 } Point;
 
 typedef struct {
+  unsigned int numVerts;
+  Point verts[];
+} Face;
+
+typedef struct {
     const unsigned int numVerts;
     const unsigned int numFaces;
     Point *verts;
+    Face *faces;
     Point *norms;
 } Mesh;
 
