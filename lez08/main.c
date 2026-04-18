@@ -1,10 +1,13 @@
 #include "utils.h"
+#include "cJSON.h"
 #include <GL/freeglut_std.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
 #include <math.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 /**
 Poliedro - casa
@@ -16,7 +19,7 @@ Point eyePosition = {0.0, 0.0, 2.0};
 const Point lookAtPoint = {0.0, 0.0, 0.0};
 const Point upVector = {0.0, 1.0, 0.0};
 
-Mesh house;
+Mesh mesh;
 const unsigned int numFaces = 7;
 const unsigned int numVerts = 10;
 const Point verts[10] = {
@@ -77,9 +80,6 @@ GLvoid keyboard(unsigned char key, int x, int y) {
     case 'r':
       eyePosition = (Point){0.0, 0.0, 2.0};
       break;
-    case 27: // ESC
-      exit(0);
-      break;
   }
   glutPostRedisplay();
 }
@@ -119,7 +119,7 @@ void display() {
 
     glPushMatrix();
       glColor3d(0.0, 0.0, 1.0);
-      drawPolyedron(&house);
+      drawPolyedron(&mesh);
     glPopMatrix();
   glPopMatrix();
   glFlush();
@@ -127,81 +127,172 @@ void display() {
 
 
 
-int main(int argc, char **argv) {
-  house.numFaces = numFaces;
-  house.faces = malloc(house.numFaces * sizeof(Face));
+void loadHouseMesh() {
+  mesh.numFaces = numFaces;
+  mesh.faces = malloc(mesh.numFaces * sizeof(Face));
 
-  house.faces[0].numVerts = 5;
-  for (int i = 1; i < house.numFaces - 1; i++) {
-    house.faces[i].numVerts = 4;
+  mesh.faces[0].numVerts = 5;
+  for (int i = 1; i < mesh.numFaces - 1; i++) {
+    mesh.faces[i].numVerts = 4;
   }
-  house.faces[house.numFaces - 1].numVerts = 5;
+  mesh.faces[mesh.numFaces - 1].numVerts = 5;
 
-  for (int i = 0; i < house.numFaces; i++) {
-    house.faces[i].verts = malloc(house.faces[i].numVerts * sizeof(Point));
+  for (int i = 0; i < mesh.numFaces; i++) {
+    mesh.faces[i].verts = malloc(mesh.faces[i].numVerts * sizeof(Point));
   }
 
   // back
-  house.faces[0].verts[0] = verts[0];
-  house.faces[0].verts[1] = verts[2];
-  house.faces[0].verts[2] = verts[8];
-  house.faces[0].verts[3] = verts[6];
-  house.faces[0].verts[4] = verts[4];
+  mesh.faces[0].verts[0] = verts[0];
+  mesh.faces[0].verts[1] = verts[2];
+  mesh.faces[0].verts[2] = verts[8];
+  mesh.faces[0].verts[3] = verts[6];
+  mesh.faces[0].verts[4] = verts[4];
 
   // base 
-  house.faces[1].verts[0] = verts[0];
-  house.faces[1].verts[1] = verts[4];
-  house.faces[1].verts[2] = verts[5];
-  house.faces[1].verts[3] = verts[1];
+  mesh.faces[1].verts[0] = verts[0];
+  mesh.faces[1].verts[1] = verts[4];
+  mesh.faces[1].verts[2] = verts[5];
+  mesh.faces[1].verts[3] = verts[1];
 
   // left
-  house.faces[2].verts[0] = verts[0];
-  house.faces[2].verts[1] = verts[1];
-  house.faces[2].verts[2] = verts[3];
-  house.faces[2].verts[3] = verts[2];
+  mesh.faces[2].verts[0] = verts[0];
+  mesh.faces[2].verts[1] = verts[1];
+  mesh.faces[2].verts[2] = verts[3];
+  mesh.faces[2].verts[3] = verts[2];
 
   // right
-  house.faces[3].verts[0] = verts[4];
-  house.faces[3].verts[1] = verts[6];
-  house.faces[3].verts[2] = verts[7];
-  house.faces[3].verts[3] = verts[5];
+  mesh.faces[3].verts[0] = verts[4];
+  mesh.faces[3].verts[1] = verts[6];
+  mesh.faces[3].verts[2] = verts[7];
+  mesh.faces[3].verts[3] = verts[5];
 
   // roof left
-  house.faces[4].verts[0] = verts[2];
-  house.faces[4].verts[1] = verts[3];
-  house.faces[4].verts[2] = verts[9];
-  house.faces[4].verts[3] = verts[8];
+  mesh.faces[4].verts[0] = verts[2];
+  mesh.faces[4].verts[1] = verts[3];
+  mesh.faces[4].verts[2] = verts[9];
+  mesh.faces[4].verts[3] = verts[8];
 
   // roof right
-  house.faces[5].verts[0] = verts[7];
-  house.faces[5].verts[1] = verts[6];
-  house.faces[5].verts[2] = verts[8];
-  house.faces[5].verts[3] = verts[9];
+  mesh.faces[5].verts[0] = verts[7];
+  mesh.faces[5].verts[1] = verts[6];
+  mesh.faces[5].verts[2] = verts[8];
+  mesh.faces[5].verts[3] = verts[9];
 
   // front
-  house.faces[6].verts[0] = verts[5];
-  house.faces[6].verts[1] = verts[7];
-  house.faces[6].verts[2] = verts[9];
-  house.faces[6].verts[3] = verts[3];
-  house.faces[6].verts[4] = verts[1];
+  mesh.faces[6].verts[0] = verts[5];
+  mesh.faces[6].verts[1] = verts[7];
+  mesh.faces[6].verts[2] = verts[9];
+  mesh.faces[6].verts[3] = verts[3];
+  mesh.faces[6].verts[4] = verts[1];
 
-  for (int i = 0; i < house.numFaces; i++) {
-    house.faces[i].normal = newell(house.faces[i].verts, house.faces[i].numVerts);
+  for (int i = 0; i < mesh.numFaces; i++) {
+    mesh.faces[i].normal = newell(mesh.faces[i].verts, mesh.faces[i].numVerts);
+  }
+}
+
+
+
+void loadMeshFromFile() {
+  FILE *fp = fopen("mesh.json", "r");
+  if (fp == NULL) {
+    fprintf(stderr, "Error opening file\n");
+    exit(1);
+  }
+  char buffer[5192];
+  int len = fread(buffer, 1, sizeof(buffer), fp);
+  fclose(fp);
+
+  cJSON *json = cJSON_ParseWithLength(buffer, len);
+  if (json == NULL) {
+      const char *error_ptr = cJSON_GetErrorPtr();
+      if (error_ptr != NULL) {
+          printf("Error: json is null. %s\n", error_ptr);
+      }
+      cJSON_Delete(json);
+      exit(1);;
+  }
+
+  cJSON *faces_json = cJSON_GetObjectItemCaseSensitive(json, "faces");
+  if (!cJSON_IsArray(faces_json)) {
+      fprintf(stderr, "Error: faces is not an array\n");
+      cJSON_Delete(json);
+      exit(1);;
+  }
+  mesh.numFaces = cJSON_GetArraySize(faces_json);
+  mesh.faces = malloc(mesh.numFaces * sizeof(Face));
+
+  for (int i = 0; i < mesh.numFaces; i++) {
+    cJSON *face_json = cJSON_GetArrayItem(faces_json, i);
+    if (!cJSON_IsObject(face_json)) {
+      fprintf(stderr, "Error: face %d is not an object\n", i);
+      cJSON_Delete(json);
+      exit(1);;
+    }
+
+    cJSON *verts_json = cJSON_GetObjectItemCaseSensitive(face_json, "verts");
+    if (!cJSON_IsArray(verts_json)) {
+      fprintf(stderr, "Error: verts for face %d is not an array\n", i);
+      cJSON_Delete(json);
+      exit(1);;
+    }
+    mesh.faces[i].numVerts = cJSON_GetArraySize(verts_json);
+    mesh.faces[i].verts = malloc(mesh.faces[i].numVerts * sizeof(Point));
+
+    for (int j = 0; j < mesh.faces[i].numVerts; j++) {
+      cJSON *point_json = cJSON_GetArrayItem(verts_json, j);
+      if (!cJSON_IsArray(point_json) || cJSON_GetArraySize(point_json) != 3) {
+        fprintf(stderr, "Error: point %d for face %d is not an valid\n", j, i);
+        cJSON_Delete(json);
+        exit(1);;
+      }
+
+      cJSON *x_json = cJSON_GetArrayItem(point_json, 0);
+      cJSON *y_json = cJSON_GetArrayItem(point_json, 1);
+      cJSON *z_json = cJSON_GetArrayItem(point_json, 2);
+      if (!cJSON_IsNumber(x_json) || !cJSON_IsNumber(y_json) || !cJSON_IsNumber(z_json)) {
+        fprintf(stderr, "Error: vert %d for face %d has invalid coordinates\n", j, i);
+        cJSON_Delete(json);
+        exit(1);;
+      }
+      mesh.faces[i].verts[j] = (Point){x_json->valuedouble, y_json->valuedouble, z_json->valuedouble};
+    }
+  }
+
+  cJSON_Delete(json);
+  
+  for (int i = 0; i < mesh.numFaces; i++) {
+    mesh.faces[i].normal = newell(mesh.faces[i].verts, mesh.faces[i].numVerts);
+  }
+}
+
+
+
+void freeMesh() {
+  for (int i = 0; i < mesh.numFaces; i++) {
+    free(mesh.faces[i].verts);
+  }
+  free(mesh.faces);
+}
+
+
+
+int main(int argc, char **argv) {
+  if (argc == 2 && strcmp(argv[1], "json") == 0) {
+    loadMeshFromFile();
+  } else {
+    loadHouseMesh();
   }
   
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);
   glutInitWindowPosition(0, 0);
   glutInitWindowSize(500, 500);
-  (void)glutCreateWindow("Poliedro - Casa");
+  (void)glutCreateWindow("Mesh");
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
   glutMainLoop();
 
-  for (int i = 0; i < house.numFaces; i++) {
-    free(house.faces[i].verts);
-  }
-  free(house.faces);
+  freeMesh();
   return 0;
 }
