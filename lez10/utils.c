@@ -234,3 +234,15 @@ Point casteljau(const Point *P, const unsigned int N, const double t) {
     free(p);
     return result;
 }
+
+
+
+void bezierCurve(const Point *P, const unsigned int N) {
+  glBegin(GL_LINE_STRIP);
+    glVertex3d(P[0].x, P[0].y, P[0].z);
+    for (double t = 0.0; t <= 1.0; t += 0.01) {
+      Point p = casteljau(P, N, t);
+      glVertex3d(p.x, p.y, p.z);
+    }
+  glEnd();
+}

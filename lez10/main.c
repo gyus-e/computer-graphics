@@ -10,6 +10,9 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+#define N 4
+Point P[N] = {{-10.0, 0.0, 0.0}, {-5.0, 10.0, 0.0}, {0.0, 20.0, 0.0}, {5.0, 10.0, 0.0}};
+
 Point eyePosition = {0.0, 0.0, -30.0};
 const Point lookAtPoint = {0.0, 0.0, 0.0};
 const Point upVector = {0.0, 1.0, 0.0};
@@ -49,17 +52,7 @@ void display() {
 
     glPushMatrix();
       glColor3d(0.0, 0.0, 1.0);
-      
-      glBegin(GL_LINE_STRIP);
-        int N = 4;
-        Point P[4] = {{-10.0, 0.0, 0.0}, {-5.0, 10.0, 0.0}, {0.0, 20.0, 0.0}, {5.0, 10.0, 0.0}};
-        glVertex3d(P[0].x, P[0].y, P[0].z);
-        for (double t = 0.0; t <= 1.0; t += 0.01) {
-          Point p = casteljau(P, N, t);
-          glVertex3d(p.x, p.y, p.z);
-        }
-      glEnd();
-
+      bezierCurve(P, N);
     glPopMatrix();
   glPopMatrix();
   // glFlush();
