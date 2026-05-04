@@ -21,9 +21,10 @@ const double domain[2][2] = {
   {-10.0, 10.0}
 };
 
+double k = 0.0;
 
 
-double f1(const double x, const double z) {
+double f1(const double x, const double z, const double k) {
   return 2*sin(sqrt(x*x + z*z))/sqrt(x*x + z*z);
 }
 
@@ -68,7 +69,8 @@ void display() {
 
     glPushMatrix();
       glColor3d(0.0, 0.0, 1.0);
-      plotFunction(f1, domain, step);
+      // plotFunction(f1, domain, step, 0);
+      plotFunction(f2, domain, step, k);
     glPopMatrix();
   glPopMatrix();
   // glFlush();
@@ -119,6 +121,8 @@ GLvoid keyboard(unsigned char key, int x, int y) {
       break;
     case 'r':
       eyePosition = (Point){0.0, 0.0, -20.0};
+      rotateEyePosition_y(M_PI / 16.0);
+      k = 0.0;
       break;
     case 0x1B: // ESC
       exit(0);
@@ -128,8 +132,15 @@ GLvoid keyboard(unsigned char key, int x, int y) {
 }
 
 
+GLvoid time(int value) {
+  k+=0.5;
+  glutPostRedisplay();
+  glutTimerFunc(1000 / 60, time, 0);
+}
+
 
 int main(int argc, char **argv) {
+  rotateEyePosition_y(M_PI / 16.0);
   glutInit(&argc, argv);
   // glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
@@ -139,6 +150,7 @@ int main(int argc, char **argv) {
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
+  glutTimerFunc(0, time, 0);
   glutMainLoop();
   return 0;
 }

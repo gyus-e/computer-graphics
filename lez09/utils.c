@@ -192,14 +192,14 @@ Point newell(const Point *verts, const unsigned int numVerts) {
 
 
 
-void plotFunction(double (*f)(const double, const double), const double domain[2][2], const double step) {
+void plotFunction(double (*f)(const double, const double, const double), const double domain[2][2], const double step, const double k) {
   for (double x = domain[0][0]; x <= domain[0][1]; x += step) {
     for (double z = domain[1][0]; z <= domain[1][1]; z += step) {
         glBegin(GL_QUADS);
-          Point p0 = {x, f(x, z), z};
-          Point p1 = {x, f(x, z + step), z + step};
-          Point p2 = {x + step, f(x + step, z + step), z + step};
-          Point p3 = {x + step, f(x + step, z), z};
+          Point p0 = {x, f(x, z, k), z};
+          Point p1 = {x, f(x, z + step, k), z + step};
+          Point p2 = {x + step, f(x + step, z + step, k), z + step};
+          Point p3 = {x + step, f(x + step, z, k), z};
           Point normal = newell((Point[]){p0, p1, p2, p3}, 4);      
           glNormal3d(normal.x, normal.y, normal.z);
           glVertex3d(p0.x, p0.y, p0.z);
