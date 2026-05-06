@@ -38,7 +38,7 @@ void draw2DClock(const Point *center, const double radius, const double secondsR
 void draw3DClock(const Point *center, const double radius, const double secondsRotation, const double minutesRotation, const double hoursRotation, const double bg[3], const double fg[3]);
 void drawPolyedron(const Mesh *mesh);
 Point newell(const Point *verts, const unsigned int numVerts);
-void plotFunction(double (*f)(const double, const double), const double domain[2][2], const double step);
+void plotFunction(double (*f)(const double, const double, const double), const double domain[2][2], const double step, const double k);
 Point casteljau(const Point *P, const unsigned int N, const double t);
 void bezierCurve(const Point *P, const unsigned int N);
 
