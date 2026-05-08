@@ -73,15 +73,18 @@ void display() {
     glPushMatrix();
       glColor3d(1.0, 1.0, 1.0);
       theNurb = gluNewNurbsRenderer();
+      // gluNurbsProperty(theNurb, GLU_SAMPLING_TOLERANCE, 25.0);
+      // gluNurbsProperty(theNurb, GLU_U_STEP, 5);
+      // gluNurbsProperty(theNurb, GLU_SAMPLING_METHOD, GLU_DOMAIN_DISTANCE);
       gluBeginCurve(theNurb);
         // gluNurbsCurve(theNurb, 8, knots, 3, &cp[0][0], 4, GL_MAP1_VERTEX_3);
-        // gluNurbsCurve(theNurb, 8, knots, 4, &cpw[0][0], 4, GL_MAP1_VERTEX_4);
-        gluNurbsCurve(theNurb, 10, circleKnots, 4, &circleCpw[0][0], 3, GL_MAP1_VERTEX_4);
+        gluNurbsCurve(theNurb, 8, knots, 4, &cpw[0][0], 4, GL_MAP1_VERTEX_4);
+        // gluNurbsCurve(theNurb, 10, circleKnots, 2, &circleCpw[0][0], 4, GL_MAP1_VERTEX_4);
       gluEndCurve(theNurb);
     glPopMatrix();
   glPopMatrix();
-  glFlush();
-//   glutSwapBuffers();
+  // glFlush();
+  glutSwapBuffers();
 }
 
 
@@ -103,7 +106,7 @@ int main(int argc, char **argv) {
   }
 
   glutInit(&argc, argv);
-//   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
+  glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
   glutInitWindowPosition(0, 0);
   glutInitWindowSize(500, 500);
   (void)glutCreateWindow("NURBS");
