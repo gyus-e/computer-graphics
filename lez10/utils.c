@@ -290,8 +290,8 @@ int checkContinuity(const Point *CP1, const unsigned int N1,
     return 0;
   }
   if (CP1[N1-1].x - CP1[N1-2].x != CP2[1].x - CP2[0].x || CP1[N1-1].y - CP1[N1-2].y != CP2[1].y - CP2[0].y || CP1[N1-1].z - CP1[N1-2].z != CP2[1].z - CP2[0].z) {
-    fprintf(stderr, "Error: The tangent at the joining point must be the same for both curves.\n");
-    return 0;
+    fprintf(stderr, "Warning: The tangent at the joining point is not the same for both curves.\n");
+    return 2;
   }
   return 1;
 }
