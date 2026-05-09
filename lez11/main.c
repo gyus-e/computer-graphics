@@ -19,9 +19,9 @@ GLfloat w[4] = {1.0, 5.0, 1.0, 1.0};
 GLfloat knots[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
 GLfloat cpw[4][4];
 
-GLfloat circleControlPoints[7][3] = {
+GLfloat circleCP[7][3] = {
     {1.0, 2.0, 0.0},
-    {-1.0, 3.0, 0.0},
+    {1.0, 3.0, 0.0},
     {3.0, 3.0, 0.0},
     {3.0, 2.0, 0.0},
     {3.0, 1.0, 0.0},
@@ -63,7 +63,7 @@ void display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   
-//   glShadeModel(GL_FLAT);
+  glShadeModel(GL_FLAT);
 
   glPushMatrix();
     gluLookAt(eyePosition.x, eyePosition.y, eyePosition.z,
@@ -71,19 +71,18 @@ void display() {
               upVector.x, upVector.y, upVector.z);
 
     glPushMatrix();
-      glColor3d(1.0, 1.0, 1.0);
+      glColor3dv(red);
       theNurb = gluNewNurbsRenderer();
-      // gluNurbsProperty(theNurb, GLU_SAMPLING_TOLERANCE, 25.0);
-      // gluNurbsProperty(theNurb, GLU_U_STEP, 5);
-      // gluNurbsProperty(theNurb, GLU_SAMPLING_METHOD, GLU_DOMAIN_DISTANCE);
+      gluNurbsCallback(theNurb, GLU_ERROR, (GLvoid (*))nurbsError);
+      gluNurbsProperty(theNurb, GLU_U_STEP, 50);
+      gluNurbsProperty(theNurb, GLU_SAMPLING_METHOD, GLU_DOMAIN_DISTANCE);
       gluBeginCurve(theNurb);
         // gluNurbsCurve(theNurb, 8, knots, 3, &cp[0][0], 4, GL_MAP1_VERTEX_3);
-        gluNurbsCurve(theNurb, 8, knots, 4, &cpw[0][0], 4, GL_MAP1_VERTEX_4);
-        // gluNurbsCurve(theNurb, 10, circleKnots, 2, &circleCpw[0][0], 4, GL_MAP1_VERTEX_4);
+        // gluNurbsCurve(theNurb, 8, knots, 4, &cpw[0][0], 4, GL_MAP1_VERTEX_4);
+        gluNurbsCurve(theNurb, 10, circleKnots, 4, &circleCpw[0][0], 3, GL_MAP1_VERTEX_4);
       gluEndCurve(theNurb);
     glPopMatrix();
   glPopMatrix();
-  // glFlush();
   glutSwapBuffers();
 }
 
@@ -97,11 +96,10 @@ int main(int argc, char **argv) {
     cpw[i][2] = cp[i][2] * w[i];
     cpw[i][3] = w[i];
   }
-
   for (int i = 0; i < 7; i++) {
-    circleCpw[i][0] = circleControlPoints[i][0] * circleW[i];
-    circleCpw[i][1] = circleControlPoints[i][1] * circleW[i];
-    circleCpw[i][2] = circleControlPoints[i][2] * circleW[i];
+    circleCpw[i][0] = circleCP[i][0] * circleW[i];
+    circleCpw[i][1] = circleCP[i][1] * circleW[i];
+    circleCpw[i][2] = circleCP[i][2] * circleW[i];
     circleCpw[i][3] = circleW[i];
   }
 
@@ -112,7 +110,6 @@ int main(int argc, char **argv) {
   (void)glutCreateWindow("NURBS");
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
-//   glutKeyboardFunc(keyboard);
   glutMainLoop();
   return 0;
 }

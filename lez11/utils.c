@@ -4,6 +4,7 @@
 #include <GL/glut.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 
 
@@ -302,4 +303,12 @@ int compositeBezierCurve(const Point *CP1, const unsigned int N1, const double *
   rationalBezierCurve(CP1, w1, N1);
   rationalBezierCurve(CP2, w2, N2);
   return 0;
+}
+
+
+
+void nurbsError(GLenum errorCode) {
+  const GLubyte *errorString = gluErrorString(errorCode);
+  fprintf(stderr, "Errore NURBS: %s\n", errorString);
+  exit(EXIT_FAILURE);
 }

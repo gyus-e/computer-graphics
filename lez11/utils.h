@@ -1,3 +1,5 @@
+#include <GL/gl.h>
+
 #ifndef UTILS_H
 #define UTILS_H
 
@@ -50,5 +52,6 @@ int toHomogeneousCoordinates(double pw[4], const Point *p, const double w);
 void rationalBezierCurve(const Point *CP, const double *w, const unsigned int N);
 int checkContinuity(const Point *CP1, const unsigned int N1, const Point *CP2, const unsigned int N2);
 int compositeBezierCurve(const Point *CP1, const unsigned int N1, const double *w1, const Point *CP2, const unsigned int N2, const double *w2);
+void nurbsError(GLenum errorCode);
 
 #endif // UTILS_H
