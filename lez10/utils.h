@@ -41,6 +41,8 @@ void drawPolyedron(const Mesh *mesh);
 Point newell(const Point *verts, const unsigned int numVerts);
 void plotFunction(double (*f)(const double, const double, const double), const double domain[2][2], const double step, const double k);
 Point casteljau(const Point *P, const unsigned int N, const double t);
-void bezierCurve(const Point *P, const unsigned int N);
+void bezierCurve(const Point *P, const unsigned int N, const double a, const double b);
+int toHomogeneousCoordinates(double *pw, const Point *p, const double w);
+void rationalBezierCurve(const Point *CP, const double *w, const unsigned int N);
 
 #endif // UTILS_H

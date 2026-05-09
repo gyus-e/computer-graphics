@@ -11,7 +11,21 @@
 #endif
 
 #define N 4
-Point P[N] = {{-10.0, 0.0, 0.0}, {-5.0, 10.0, 0.0}, {0.0, 20.0, 0.0}, {5.0, 10.0, 0.0}};
+
+Point CP_0[N] = {
+  {-10.0, 0.0, 0.0}, 
+  {-5.0, 10.0, 0.0}, 
+  {0.0, 20.0, 0.0}, 
+  {5.0, 10.0, 0.0}
+};
+
+Point CP_1[N] = { 
+  { -4.0, -4.0, 0.0},
+  { -2.0,  4.0, 0.0},
+  {  2.0, -4.0, 0.0}, 
+  {  4.0,  4.0, 0.0}
+};
+double w[N] ={ 1.0, 5.0, 1.0, 1.0};
 
 Point eyePosition = {0.0, 0.0, -30.0};
 const Point lookAtPoint = {0.0, 0.0, 0.0};
@@ -52,10 +66,11 @@ void display() {
 
     glPushMatrix();
       glColor3d(0.0, 0.0, 1.0);
-      bezierCurve(P, N);
+      // bezierCurve(CP_0, N, 0.0, 1.0);
+      // rationalBezierCurve(CP_0, w, N);
+      rationalBezierCurve(CP_1, w, N);
     glPopMatrix();
   glPopMatrix();
-  // glFlush();
   glutSwapBuffers();
 }
 
