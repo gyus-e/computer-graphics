@@ -280,3 +280,30 @@ void rationalBezierCurve(const Point *CP, const double *w, const unsigned int N)
 
   free(cpw);
 }
+
+
+
+int checkContinuity(const Point *CP1, const unsigned int N1,
+                    const Point *CP2, const unsigned int N2) {
+  if (CP1[N1-1].x != CP2[0].x || CP1[N1-1].y != CP2[0].y || CP1[N1-1].z != CP2[0].z) {
+    fprintf(stderr, "Error: The last control point of the first curve must be the same as the first control point of the second curve.\n");
+    return 0;
+  }
+  if (CP1[N1-1].x - CP1[N1-2].x != CP2[1].x - CP2[0].x || CP1[N1-1].y - CP1[N1-2].y != CP2[1].y - CP2[0].y || CP1[N1-1].z - CP1[N1-2].z != CP2[1].z - CP2[0].z) {
+    fprintf(stderr, "Error: The tangent at the joining point must be the same for both curves.\n");
+    return 0;
+  }
+  return 1;
+}
+
+
+
+int compositeBezierCurve(const Point *CP1, const unsigned int N1, const double *w1,
+                          const Point *CP2, const unsigned int N2, const double *w2) {
+  if (!checkContinuity(CP1, N1, CP2, N2)) {
+    return 1;
+  }
+  rationalBezierCurve(CP1, w1, N1);
+  rationalBezierCurve(CP2, w2, N2);
+  return 0;
+}

@@ -44,5 +44,7 @@ Point casteljau(const Point *P, const unsigned int N, const double t);
 void bezierCurve(const Point *P, const unsigned int N, const double a, const double b);
 int toHomogeneousCoordinates(double *pw, const Point *p, const double w);
 void rationalBezierCurve(const Point *CP, const double *w, const unsigned int N);
+int checkContinuity(const Point *CP1, const unsigned int N1, const Point *CP2, const unsigned int N2);
+int compositeBezierCurve(const Point *CP1, const unsigned int N1, const double *w1, const Point *CP2, const unsigned int N2, const double *w2);
 
 #endif // UTILS_H

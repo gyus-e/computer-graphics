@@ -12,19 +12,27 @@
 
 #define N 4
 
-Point CP_0[N] = {
+Point CP0[N] = {
   {-10.0, 0.0, 0.0}, 
   {-5.0, 10.0, 0.0}, 
   {0.0, 20.0, 0.0}, 
   {5.0, 10.0, 0.0}
 };
 
-Point CP_1[N] = { 
+Point CP1[N] = { 
   { -4.0, -4.0, 0.0},
   { -2.0,  4.0, 0.0},
   {  2.0, -4.0, 0.0}, 
   {  4.0,  4.0, 0.0}
 };
+
+Point CP2[N] = { 
+  {  4.0,  4.0, 0.0},
+  {  6.0, 12.0, 0.0},
+  { 10.0,  14.0, 0.0}, 
+  { 12.0, 16.0, 0.0}
+};
+
 double w[N] ={ 1.0, 5.0, 1.0, 1.0};
 
 Point eyePosition = {0.0, 0.0, -30.0};
@@ -66,9 +74,8 @@ void display() {
 
     glPushMatrix();
       glColor3d(0.0, 0.0, 1.0);
-      // bezierCurve(CP_0, N, 0.0, 1.0);
-      // rationalBezierCurve(CP_0, w, N);
-      rationalBezierCurve(CP_1, w, N);
+      rationalBezierCurve(CP1, w, N);
+      compositeBezierCurve(CP1, N, w, CP2, N, w);
     glPopMatrix();
   glPopMatrix();
   glutSwapBuffers();
@@ -130,7 +137,6 @@ GLvoid keyboard(unsigned char key, int x, int y) {
 
 int main(int argc, char **argv) {
   glutInit(&argc, argv);
-  // glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
   glutInitWindowPosition(0, 0);
   glutInitWindowSize(500, 500);
