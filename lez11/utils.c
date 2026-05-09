@@ -210,12 +210,12 @@ void plotFunction(double (*f)(const double, const double, const double), const d
 
 
 
-Point casteljau(const Point *P, const unsigned int N, const double t) {
+Point casteljau(const Point *CP, const unsigned int N, const double t) {
     Point *p = malloc(N * sizeof(Point));
     for (int i = 0; i < N; i++) {
-        p[i].x = P[i].x;
-        p[i].y = P[i].y;
-        p[i].z = P[i].z;
+        p[i].x = CP[i].x;
+        p[i].y = CP[i].y;
+        p[i].z = CP[i].z;
     }
     for (int r = 1; r < N; r++) {
         for (int i = 0; i < N - r; i++) {
@@ -234,12 +234,72 @@ Point casteljau(const Point *P, const unsigned int N, const double t) {
 
 
 
-void bezierCurve(const Point *P, const unsigned int N) {
+void bezierCurve(const Point *CP, const unsigned int N, const double a, const double b) {
   glBegin(GL_LINE_STRIP);
-    glVertex3d(P[0].x, P[0].y, P[0].z);
-    for (double t = 0.0; t <= 1.0; t += 0.01) {
-      Point p = casteljau(P, N, t);
+    glVertex3d(CP[0].x, CP[0].y, CP[0].z);
+    for (double s = a; s <= b; s += 0.01) {
+      const double t = (s - a) / (b - a);
+      Point p = casteljau(CP, N, t);
       glVertex3d(p.x, p.y, p.z);
     }
   glEnd();
+}
+
+
+
+int toHomogeneousCoordinates(double pw[4], const Point *p, const double w) {
+  if (pw == NULL || p == NULL) {
+    fprintf(stderr, "Error: pw and p cannot be NULL.\n");
+    return 1;
+  }
+  pw[0] = p->x * w;
+  pw[1] = p->y * w;
+  pw[2] = p->z * w;
+  pw[3] = w;
+  return 0;
+}
+
+
+
+void rationalBezierCurve(const Point *CP, const double *w, const unsigned int N) {
+  double *cpw = malloc(N * 4 * sizeof(double));
+
+  for (int i = 0; i < N; i++) {
+    (void)toHomogeneousCoordinates(&cpw[i*4], &CP[i], w[i]);
+  }
+
+  glMap1d(GL_MAP1_VERTEX_4, 0.0, 1.0, 4, N, cpw);
+  glEnable(GL_MAP1_VERTEX_4);
+  
+  glMapGrid1d(30, 0, 1);
+  glEvalMesh1(GL_LINE, 0, 30);
+
+  free(cpw);
+}
+
+
+
+int checkContinuity(const Point *CP1, const unsigned int N1,
+                    const Point *CP2, const unsigned int N2) {
+  if (CP1[N1-1].x != CP2[0].x || CP1[N1-1].y != CP2[0].y || CP1[N1-1].z != CP2[0].z) {
+    fprintf(stderr, "Error: The last control point of the first curve must be the same as the first control point of the second curve.\n");
+    return 0;
+  }
+  if (CP1[N1-1].x - CP1[N1-2].x != CP2[1].x - CP2[0].x || CP1[N1-1].y - CP1[N1-2].y != CP2[1].y - CP2[0].y || CP1[N1-1].z - CP1[N1-2].z != CP2[1].z - CP2[0].z) {
+    fprintf(stderr, "Warning: The tangent at the joining point is not the same for both curves.\n");
+    return 2;
+  }
+  return 1;
+}
+
+
+
+int compositeBezierCurve(const Point *CP1, const unsigned int N1, const double *w1,
+                          const Point *CP2, const unsigned int N2, const double *w2) {
+  if (!checkContinuity(CP1, N1, CP2, N2)) {
+    return 1;
+  }
+  rationalBezierCurve(CP1, w1, N1);
+  rationalBezierCurve(CP2, w2, N2);
+  return 0;
 }
