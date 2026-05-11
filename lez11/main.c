@@ -74,7 +74,7 @@ void display() {
       glColor3dv(red);
       theNurb = gluNewNurbsRenderer();
       gluNurbsCallback(theNurb, GLU_ERROR, (GLvoid (*))nurbsError);
-      gluNurbsProperty(theNurb, GLU_U_STEP, 50);
+      gluNurbsProperty(theNurb, GLU_U_STEP, 360);
       gluNurbsProperty(theNurb, GLU_SAMPLING_METHOD, GLU_DOMAIN_DISTANCE);
       gluBeginCurve(theNurb);
         // gluNurbsCurve(theNurb, 8, knots, 3, &cp[0][0], 4, GL_MAP1_VERTEX_3);
