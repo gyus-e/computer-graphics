@@ -51,7 +51,7 @@ void reshape(int width, int height) {
   glViewport(0, 0, width, height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(20.0, (double)width / (double)height, 10.0, 30.0);
+  gluPerspective(20.0, (double)width / (double)height, 10.0, 50.0);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -94,6 +94,37 @@ void display() {
 
 
 
+void keyboard(unsigned char key, int x, int y) {
+  switch (key) {
+    case 27: // ESC
+      exit(0);
+      break;
+    case 'w':
+      eyePosition.y += 0.5;
+      glutPostRedisplay();
+      break;
+    case 's':
+      eyePosition.y -= 0.5;
+      glutPostRedisplay();
+      break;
+    case 'a':
+      eyePosition.x -= 0.5;
+      glutPostRedisplay();
+      break;
+    case 'd':
+      eyePosition.x += 0.5;
+      glutPostRedisplay();
+      break;
+    case 'r':
+      eyePosition = (Point){5.0, 0.0, 20.0};
+      glutPostRedisplay();
+      break;
+    default:
+      break;
+  }
+}
+
+
 
 int main(int argc, char **argv) {
   glutInit(&argc, argv);
@@ -103,6 +134,7 @@ int main(int argc, char **argv) {
   (void)glutCreateWindow("BEZIER SURFACES");
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
+  glutKeyboardFunc(keyboard);
   glutMainLoop();
   return 0;
 }
