@@ -262,6 +262,20 @@ int toHomogeneousCoordinates(double pw[4], const Point *p, const double w) {
 
 
 
+int toHomogeneousCoordinatesv(double pw[4], const double p[3], const double w) {
+  if (pw == NULL || p == NULL) {
+    fprintf(stderr, "Error: pw and p cannot be NULL.\n");
+    return 1;
+  }
+  pw[X] = p[X] * w;
+  pw[Y] = p[Y] * w;
+  pw[Z] = p[Z] * w;
+  pw[3] = w;
+  return 0;
+}
+
+
+
 void rationalBezierCurve(const Point *CP, const double *w, const unsigned int N) {
   double *cpw = malloc(N * 4 * sizeof(double));
 
