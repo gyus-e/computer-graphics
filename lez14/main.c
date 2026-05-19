@@ -17,10 +17,16 @@ Creare due luci:
 
 const Point upVector = {0.0, 1.0, 0.0};
 const Point lookAtPoint = {0.0, 0.0, 0.0};
-const double radius = 30.0;
+
 const double camSpeed = 0.5;
+const double camDistance = 30.0;
 double camAngle[2] = {0.0, 0.0};
-Point eyePosition = {0.0, 0.0, radius};
+Point camPosition = {0.0, 0.0, camDistance};
+
+const double sphereDistance = 0.5;
+double sphereAngle[2] = {0.0, 0.0};
+double c1[3] = {-0.5, 0.0, 0.0}; 
+double c2[3] = {0.5, 0.0, 0.0};
 GLUquadricObj *s1, *s2;
 
 
@@ -55,42 +61,42 @@ void display() {
   glEnable(GL_AUTO_NORMAL);
   glEnable(GL_NORMALIZE);
   
-  glEnable(GL_LIGHT0);
-  glLightfv(GL_LIGHT0, GL_POSITION, (GLfloat[]){lookAtPoint.x, lookAtPoint.y + 3, lookAtPoint.z, 1.0});
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, (GLfloat[]){1.0, 1.0, 1.0, 1.0});
-  
   glEnable(GL_LIGHT1);
-  glLightfv(GL_LIGHT1, GL_POSITION, (GLfloat[]){eyePosition.x, eyePosition.y + 3, eyePosition.z, 1.0});
+  glLightfv(GL_LIGHT1, GL_POSITION, (GLfloat[]){camPosition.x, camPosition.y, camPosition.z, 1.0});
   glLightfv(GL_LIGHT1, GL_DIFFUSE, (GLfloat[]){1.0, 0.0, 0.0, 1.0});
 
-  glPointSize(1.0);
-  glColor3dv(red);
+  glEnable(GL_LIGHT2);
+  glLightfv(GL_LIGHT2, GL_POSITION, (GLfloat[]){(c1[X] + c2[X]) * 0.5, (c1[Y] + c2[Y]) * 0.5 + 5, (c1[Z] + c2[Z]) * 0.5 - 5, 1.0});
+  glLightfv(GL_LIGHT2, GL_DIFFUSE, (GLfloat[]){1.0, 1.0, 1.0, 1.0});
 
   glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();   
+  glLoadIdentity();
 
+  glPointSize(1.0);
+  glColor3dv(white);
+  
   glPushMatrix();
-    gluLookAt(eyePosition.x, eyePosition.y, eyePosition.z, lookAtPoint.x,
+    gluLookAt(camPosition.x, camPosition.y, camPosition.z, lookAtPoint.x,
                 lookAtPoint.y, lookAtPoint.z, upVector.x, upVector.y, upVector.z);
 
     glPushMatrix();
-      glTranslated(-0.4, 0.0, 0.0);
+      glTranslated(c1[X], c1[Y], c1[Z]);
       s1 = gluNewQuadric();
       gluQuadricCallback(s1, GLU_ERROR, (GLvoid(*))errorCallback);
       gluQuadricDrawStyle(s1, GLU_FILL); 
       gluQuadricOrientation(s1, GLU_OUTSIDE); 
       gluQuadricNormals(s1, GLU_FLAT);
-      gluSphere(s1, 0.75, 30, 10);
+      gluSphere(s1, 1.0, 60, 20);
     glPopMatrix();
 
     glPushMatrix();
-      glTranslated(0.4, 0.0, 0.0);
+      glTranslated(c2[X], c2[Y], c2[Z]);
       s2 = gluNewQuadric();
       gluQuadricCallback(s2, GLU_ERROR, (GLvoid(*))errorCallback);
       gluQuadricDrawStyle(s2, GLU_FILL); 
       gluQuadricOrientation(s2, GLU_OUTSIDE); 
       gluQuadricNormals(s2, GLU_FLAT);
-      gluSphere(s2, 0.75, 30, 10);
+      gluSphere(s2, 1.0, 60, 20);
     glPopMatrix();
       
   glPopMatrix();
@@ -115,14 +121,30 @@ void keyboard(unsigned char key, int x, int y) {
   case 'd':
     camAngle[X] -= camSpeed;
     break;
+  case 'q':
+    sphereAngle[Y] -= camSpeed;
+    break;
+  case 'e':
+    sphereAngle[Y] += camSpeed;
+    break;
   case 'r':
     camAngle[X] = 0.0;
     camAngle[Y] = 0.0;
+    sphereAngle[X] = 0.0;
+    sphereAngle[Y] = 0.0;
     break;
   }
-  eyePosition.y = lookAtPoint.y + radius * sin(camAngle[Y]);
-  eyePosition.x = lookAtPoint.x + radius * cos(camAngle[Y]) * sin(camAngle[X]);
-  eyePosition.z = lookAtPoint.z + radius * cos(camAngle[Y]) * cos(camAngle[X]);
+  camPosition.y = lookAtPoint.y + camDistance * sin(camAngle[Y]);
+  camPosition.x = lookAtPoint.x + camDistance * cos(camAngle[Y]) * sin(camAngle[X]);
+  camPosition.z = lookAtPoint.z + camDistance * cos(camAngle[Y]) * cos(camAngle[X]);
+
+  c1[X] = -sphereDistance * cos(sphereAngle[Y]) * sin(sphereAngle[X]);
+  c1[Y] = sphereDistance * sin(sphereAngle[Y]);
+  c1[Z] = sphereDistance * cos(sphereAngle[Y]) * cos(sphereAngle[X]);
+
+  c2[X] = sphereDistance * cos(sphereAngle[Y]) * sin(sphereAngle[X]);
+  c2[Y] = -sphereDistance * sin(sphereAngle[Y]);
+  c2[Z] = -sphereDistance * cos(sphereAngle[Y]) * cos(sphereAngle[X]);
   glutPostRedisplay();
 }
 

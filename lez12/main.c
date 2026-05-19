@@ -6,7 +6,7 @@
 
 
 
-Point eyePosition = {5.0, 0.0, 20.0};
+Point camPosition = {5.0, 0.0, 20.0};
 const Point lookAtPoint = {0.0, 0.0, 0.0};
 const Point upVector = {0.0, 1.0, 0.0};
 
@@ -57,7 +57,7 @@ void display() {
   glShadeModel(GL_FLAT);
 
   glPushMatrix();
-  gluLookAt(eyePosition.x, eyePosition.y, eyePosition.z, lookAtPoint.x,
+  gluLookAt(camPosition.x, camPosition.y, camPosition.z, lookAtPoint.x,
             lookAtPoint.y, lookAtPoint.z, upVector.x, upVector.y, upVector.z);
 
   glPushMatrix();
@@ -87,23 +87,23 @@ void keyboard(unsigned char key, int x, int y) {
     exit(0);
     break;
   case 'w':
-    eyePosition.y += 0.5;
+    camPosition.y += 0.5;
     glutPostRedisplay();
     break;
   case 's':
-    eyePosition.y -= 0.5;
+    camPosition.y -= 0.5;
     glutPostRedisplay();
     break;
   case 'a':
-    eyePosition.x -= 0.5;
+    camPosition.x -= 0.5;
     glutPostRedisplay();
     break;
   case 'd':
-    eyePosition.x += 0.5;
+    camPosition.x += 0.5;
     glutPostRedisplay();
     break;
   case 'r':
-    eyePosition = (Point){5.0, 0.0, 20.0};
+    camPosition = (Point){5.0, 0.0, 20.0};
     glutPostRedisplay();
     break;
   default:

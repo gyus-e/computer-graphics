@@ -33,7 +33,7 @@ float circleKnots[10] = {0.0, 0.0, 0.0, 0.25, 0.5, 0.5, 0.75, 1.0, 1.0, 1.0};
 float circleCpw[7][4];
 
 
-Point eyePosition = {0.0, 0.0, 10.0};
+Point camPosition = {0.0, 0.0, 10.0};
 const Point lookAtPoint = {0.0, 0.0, 0.0};
 const Point upVector = {0.0, 1.0, 0.0};
 
@@ -66,7 +66,7 @@ void display() {
   glShadeModel(GL_FLAT);
 
   glPushMatrix();
-    gluLookAt(eyePosition.x, eyePosition.y, eyePosition.z,
+    gluLookAt(camPosition.x, camPosition.y, camPosition.z,
               lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
               upVector.x, upVector.y, upVector.z);
 
