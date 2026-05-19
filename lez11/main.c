@@ -9,17 +9,17 @@
 GLUnurbsObj *theNurb;
 
 
-GLfloat cp[4][3] = {
+float cp[4][3] = {
     {-4.0, -4.0, 0.0},
     {-2.0, 4.0, 0.0},
     {2.0, -4.0, 0.0},
     {4.0, 4.0, 0.0}
 };
-GLfloat w[4] = {1.0, 5.0, 1.0, 1.0};
-GLfloat knots[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
-GLfloat cpw[4][4];
+float w[4] = {1.0, 5.0, 1.0, 1.0};
+float knots[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
+float cpw[4][4];
 
-GLfloat circleCP[7][3] = {
+float circleCP[7][3] = {
     {1.0, 2.0, 0.0},
     {1.0, 3.0, 0.0},
     {3.0, 3.0, 0.0},
@@ -28,9 +28,9 @@ GLfloat circleCP[7][3] = {
     {1.0, 1.0, 0.0},
     {1.0, 2.0, 0.0}
 };
-GLfloat circleW[7] = {1.0, 0.5, 0.5, 1.0, 0.5, 0.5, 1.0};
-GLfloat circleKnots[10] = {0.0, 0.0, 0.0, 0.25, 0.5, 0.5, 0.75, 1.0, 1.0, 1.0};
-GLfloat circleCpw[7][4];
+float circleW[7] = {1.0, 0.5, 0.5, 1.0, 0.5, 0.5, 1.0};
+float circleKnots[10] = {0.0, 0.0, 0.0, 0.25, 0.5, 0.5, 0.75, 1.0, 1.0, 1.0};
+float circleCpw[7][4];
 
 
 Point eyePosition = {0.0, 0.0, 10.0};
@@ -55,8 +55,8 @@ void display() {
   glClearDepth(1.0);
   glEnable(GL_DEPTH_TEST);
   
-//   glEnable(GL_LIGHTING);
-//   glEnable(GL_LIGHT0);
+  glEnable(GL_LIGHTING);
+  glEnable(GL_LIGHT0);
   
   glPointSize(1.0);
 
@@ -87,21 +87,21 @@ void display() {
 }
 
 
+void omogenizePoints(double cpw[][4], const Point cp[], const size_t numPoints, const double w[]) {
+  for (int i = 0; i < numPoints; i++) {
+    (void)omogenize3dp(cpw[i], &cp[i], w[i]);
+  }
+}
 
+void omogenizePoints2(double cpw[][4], const double cp[][3], const size_t numPoints, const double w[]) {
+  for (int i = 0; i < numPoints; i++) {
+    (void)omogenize3dv(cpw[i], cp[i], w[i]);
+  }
+}
 
 int main(int argc, char **argv) {
-  for (int i = 0; i < 4; i++) {
-    cpw[i][0] = cp[i][0] * w[i];
-    cpw[i][1] = cp[i][1] * w[i];
-    cpw[i][2] = cp[i][2] * w[i];
-    cpw[i][3] = w[i];
-  }
-  for (int i = 0; i < 7; i++) {
-    circleCpw[i][0] = circleCP[i][0] * circleW[i];
-    circleCpw[i][1] = circleCP[i][1] * circleW[i];
-    circleCpw[i][2] = circleCP[i][2] * circleW[i];
-    circleCpw[i][3] = circleW[i];
-  }
+  omogenizePoints2((double**)cpw, (double**)cp, 4, (double*)w);
+  omogenizePoints2((double**)circleCpw, (double**)circleCP, 7, (double*)circleW);
 
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);

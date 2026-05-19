@@ -176,7 +176,7 @@ void drawPolyedron(const Mesh *mesh){
 
 
 
-Point newell(const Point *verts, const unsigned int numVerts) {
+Point newell(const Point verts[], const unsigned int numVerts) {
     Point normal = {0.0, 0.0, 0.0};
     for (unsigned int i = 0; i < numVerts; i++) {
         const Point p = verts[i];
@@ -211,7 +211,7 @@ void plotFunction(double (*f)(const double, const double, const double), const d
 
 
 
-Point casteljau(const Point *CP, const unsigned int N, const double t) {
+Point casteljau(const Point CP[], const unsigned int N, const double t) {
     Point *p = malloc(N * sizeof(Point));
     for (int i = 0; i < N; i++) {
         p[i].x = CP[i].x;
@@ -235,7 +235,7 @@ Point casteljau(const Point *CP, const unsigned int N, const double t) {
 
 
 
-void bezierCurve(const Point *CP, const unsigned int N, const double a, const double b) {
+void bezierCurve(const Point CP[], const unsigned int N, const double a, const double b) {
   glBegin(GL_LINE_STRIP);
     glVertex3d(CP[0].x, CP[0].y, CP[0].z);
     for (double s = a; s <= b; s += 0.01) {
@@ -248,7 +248,7 @@ void bezierCurve(const Point *CP, const unsigned int N, const double a, const do
 
 
 
-int toHomogeneousCoordinates(double pw[4], const Point *p, const double w) {
+int omogenize3dp(double pw[4], const Point *p, const double w) {
   if (pw == NULL || p == NULL) {
     fprintf(stderr, "Error: pw and p cannot be NULL.\n");
     return 1;
@@ -262,11 +262,25 @@ int toHomogeneousCoordinates(double pw[4], const Point *p, const double w) {
 
 
 
-void rationalBezierCurve(const Point *CP, const double *w, const unsigned int N) {
+int omogenize3dv(double pw[4], const double p[3], const double w) {
+  if (pw == NULL || p == NULL) {
+    fprintf(stderr, "Error: pw and p cannot be NULL.\n");
+    return 1;
+  }
+  pw[0] = p[0] * w;
+  pw[1] = p[1] * w;
+  pw[2] = p[2] * w;
+  pw[3] = w;
+  return 0;
+}
+
+
+
+void rationalBezierCurve(const Point CP[], const double w[], const unsigned int N) {
   double *cpw = malloc(N * 4 * sizeof(double));
 
   for (int i = 0; i < N; i++) {
-    (void)toHomogeneousCoordinates(&cpw[i*4], &CP[i], w[i]);
+    (void)omogenize3dp(&cpw[i*4], &CP[i], w[i]);
   }
 
   glMap1d(GL_MAP1_VERTEX_4, 0.0, 1.0, 4, N, cpw);
@@ -280,8 +294,8 @@ void rationalBezierCurve(const Point *CP, const double *w, const unsigned int N)
 
 
 
-int checkContinuity(const Point *CP1, const unsigned int N1,
-                    const Point *CP2, const unsigned int N2) {
+int checkContinuity(const Point CP1[], const unsigned int N1,
+                    const Point CP2[], const unsigned int N2) {
   if (CP1[N1-1].x != CP2[0].x || CP1[N1-1].y != CP2[0].y || CP1[N1-1].z != CP2[0].z) {
     fprintf(stderr, "Error: The last control point of the first curve must be the same as the first control point of the second curve.\n");
     return 0;
@@ -295,8 +309,8 @@ int checkContinuity(const Point *CP1, const unsigned int N1,
 
 
 
-int compositeBezierCurve(const Point *CP1, const unsigned int N1, const double *w1,
-                          const Point *CP2, const unsigned int N2, const double *w2) {
+int compositeBezierCurve(const Point CP1[], const unsigned int N1, const double w1[],
+                          const Point CP2[], const unsigned int N2, const double w2[]) {
   if (!checkContinuity(CP1, N1, CP2, N2)) {
     return 1;
   }

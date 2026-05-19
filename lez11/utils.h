@@ -44,14 +44,15 @@ void drawPrism(const int sides, const Point *lower_base_center, const Point *upp
 void draw2DClock(const Point *center, const double radius, const double secondsRotation, const double minutesRotation, const double hoursRotation, const double bg[3], const double fg[3]);
 void draw3DClock(const Point *center, const double radius, const double secondsRotation, const double minutesRotation, const double hoursRotation, const double bg[3], const double fg[3]);
 void drawPolyedron(const Mesh *mesh);
-Point newell(const Point *verts, const unsigned int numVerts);
+Point newell(const Point verts[], const unsigned int numVerts);
 void plotFunction(double (*f)(const double, const double, const double), const double domain[2][2], const double step, const double k);
-Point casteljau(const Point *P, const unsigned int N, const double t);
-void bezierCurve(const Point *P, const unsigned int N, const double a, const double b);
-int toHomogeneousCoordinates(double pw[4], const Point *p, const double w);
-void rationalBezierCurve(const Point *CP, const double *w, const unsigned int N);
-int checkContinuity(const Point *CP1, const unsigned int N1, const Point *CP2, const unsigned int N2);
-int compositeBezierCurve(const Point *CP1, const unsigned int N1, const double *w1, const Point *CP2, const unsigned int N2, const double *w2);
+Point casteljau(const Point CP[], const unsigned int N, const double t);
+void bezierCurve(const Point CP[], const unsigned int N, const double a, const double b);
+int omogenize3dp(double pw[4], const Point *p, const double w);
+int omogenize3dv(double pw[4], const double p[3], const double w);
+void rationalBezierCurve(const Point CP[], const double w[], const unsigned int N);
+int checkContinuity(const Point CP1[], const unsigned int N1, const Point CP2[], const unsigned int N2);
+int compositeBezierCurve(const Point CP1[], const unsigned int N1, const double w1[], const Point CP2[], const unsigned int N2, const double w2[]);
 void nurbsError(GLenum errorCode);
 
 #endif // UTILS_H
