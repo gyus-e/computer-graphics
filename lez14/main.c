@@ -155,7 +155,7 @@ int main(int argc, char **argv) {
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
   glutInitWindowPosition(10, 10);
   glutInitWindowSize(800, 800);
-  (void)glutCreateWindow("ESERCIZIO 6");
+  (void)glutCreateWindow("ESERCIZIO 1");
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
