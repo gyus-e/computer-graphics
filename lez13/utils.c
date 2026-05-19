@@ -248,7 +248,7 @@ void bezierCurve(const Point *CP, const unsigned int N, const double a, const do
 
 
 
-int toHomogeneousCoordinates(double pw[4], const Point *p, const double w) {
+int omogenize3dp(double pw[4], const Point *p, const double w) {
   if (pw == NULL || p == NULL) {
     fprintf(stderr, "Error: pw and p cannot be NULL.\n");
     return 1;
@@ -262,7 +262,7 @@ int toHomogeneousCoordinates(double pw[4], const Point *p, const double w) {
 
 
 
-int toHomogeneousCoordinatesv(double pw[4], const double p[3], const double w) {
+int omogenize3dv(double pw[4], const double p[3], const double w) {
   if (pw == NULL || p == NULL) {
     fprintf(stderr, "Error: pw and p cannot be NULL.\n");
     return 1;
