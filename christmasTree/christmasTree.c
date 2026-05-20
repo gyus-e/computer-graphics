@@ -1,3 +1,4 @@
+#include <math.h>
 #include "GL/gl.h"
 #include "GL/glu.h"
 #include "GL/glut.h"
@@ -9,9 +10,13 @@
 #define Z 2
 
 
-double eyePosition[3] = {0.0, 5.0, 50.0};
-const double lookAtPoint[3] = {0.0, 0.0, 0.0};
 const double upVector[3] = {0.0, 1.0, 0.0};
+const double lookAtPoint[3] = {0.0, 0.0, 0.0};
+
+const double step = 0.5;
+const double camDistance = 50.0;
+double camAngle[2] = {0.0, 0.0};
+double camPosition[3] = {0.0, 0.0, camDistance};
 
 
 
@@ -43,7 +48,7 @@ void display(){
   glLoadIdentity();
 
   glPushMatrix();
-    gluLookAt(eyePosition[X], eyePosition[Y], eyePosition[Z], lookAtPoint[X],
+    gluLookAt(camPosition[X], camPosition[Y], camPosition[Z], lookAtPoint[X],
                 lookAtPoint[Y], lookAtPoint[Z], upVector[X], upVector[Y], upVector[Z]);
 
 
@@ -77,6 +82,35 @@ void display(){
 
 
 
+void keyboard(unsigned char key, int x, int y) {
+  switch (key) {
+  // case 27: // ESC
+  //   exit(0);
+  case 'w':
+    camAngle[Y] -= step;
+    break;
+  case 's':
+    camAngle[Y] += step;
+    break;
+  case 'a':
+    camAngle[X] += step;
+    break;
+  case 'd':
+    camAngle[X] -= step;
+    break;
+  case 'r':
+    camAngle[X] = 0.0;
+    camAngle[Y] = 0.0;
+    break;
+  }
+  camPosition[Y] = lookAtPoint[Y] + camDistance * sin(camAngle[Y]);
+  camPosition[X] = lookAtPoint[X] + camDistance * cos(camAngle[Y]) * sin(camAngle[X]);
+  camPosition[Z] = lookAtPoint[Z] + camDistance * cos(camAngle[Y]) * cos(camAngle[X]);
+  glutPostRedisplay();
+}
+
+
+
 int main(int argc, char **argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -86,6 +120,7 @@ int main(int argc, char **argv) {
   glClearColor(0.0, 0.0, 0.0, 1.0);
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
+  glutKeyboardFunc(keyboard);
   glutMainLoop();
   return 0;
 }
