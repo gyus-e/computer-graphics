@@ -1,10 +1,8 @@
 #ifndef UTILS_H
 #define UTILS_H
 
-#define X 0
-#define Y 1
-#define Z 2
 typedef double Point[3];
+enum {X, Y, Z};
 enum {LEFT, RIGHT, BOTTOM, TOP, NEAR_PLANE, FAR_PLANE};
 
 extern const float white[3];
