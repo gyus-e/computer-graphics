@@ -19,6 +19,9 @@ lancetta dei secondi avanza ogni secondo
 lancetta minuti avanza ogni qualvolta la lancetta dei secondi completa un giro
 Mostrare numeri sul quadrante.
 */
+const int second = 360.0/60.0;
+const int minute = 360.0/60.0;
+const int hour = 360.0/12.0;
 
 GLdouble secondsRotation = 0.0;
 GLdouble minutesRotation = 0.0;
@@ -39,7 +42,7 @@ void display() {
 
   glPointSize(2.0);
   glRotated(clockRotation, 0, 1, 0);
-  draw3DClock(&center, radius, secondsRotation, minutesRotation, hoursRotation, white, black);
+  draw3DClock(center, radius, secondsRotation, minutesRotation, hoursRotation, white, black);
   checkErrors("Orologio 2D");
   glFlush();
 }
@@ -118,10 +121,8 @@ int main(int argc, char **argv) {
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);
   glutInitWindowPosition(0, 0);
   glutInitWindowSize(500, 500);
-  int window = glutCreateWindow("Orologio 2D");
+  (void)glutCreateWindow("Orologio");
   glutDisplayFunc(display);
-//   glutMouseFunc(mouse);
-//   glutTimerFunc(1000, timer, 0);
   glutKeyboardFunc(keyboard);
   glutMainLoop();
   return 0;
