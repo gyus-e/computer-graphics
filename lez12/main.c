@@ -124,6 +124,7 @@ GLvoid keyboard(GLubyte key, GLint x, GLint y) {
 }
 
 
+
 GLvoid mouse(GLint button, GLint state, GLint x, GLint y) {
   switch (button) {
   case GLUT_LEFT_BUTTON:
