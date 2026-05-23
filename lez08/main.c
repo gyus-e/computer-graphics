@@ -15,9 +15,18 @@ Poliedro - casa
 #define I 0.5
 #define O -0.5
 
-Point eyePosition = {0.0, 0.0, 2.0};
 const Point lookAtPoint = {0.0, 0.0, 0.0};
 const Point upVector = {0.0, 1.0, 0.0};
+const double camDistance = 3.0;
+double camAngle[2] = {0.0, 0.0};
+Point camPosition = {0.0, 0.0, camDistance};
+
+const double step = 0.1;
+const double sensitivity = 0.01;
+int leftMouseDown = 0;
+int rightMouseDown = 0;
+int lastMouseX = 0;
+int lastMouseY = 0;
 
 Mesh mesh;
 const unsigned int numFaces = 7;
@@ -37,50 +46,49 @@ const Point verts[10] = {
 
 
 
-void rotateEyePosition_x(double angle) {
-  double s = sin(angle);
-  double c = cos(angle);
-
-  double x = eyePosition.x * c - eyePosition.z * s;
-  double z = eyePosition.x * s + eyePosition.z * c;
-
-  eyePosition.x = x;
-  eyePosition.z = z;
-}
-
-
-
-void rotateEyePosition_y(double angle) {
-  double s = sin(angle);
-  double c = cos(angle);
-
-  double y = eyePosition.y * c - eyePosition.z * s;
-  double z = eyePosition.y * s + eyePosition.z * c;
-
-  eyePosition.y = y;
-  eyePosition.z = z;
-}
-
-
-
-GLvoid keyboard(unsigned char key, int x, int y) {
+void keyboard(unsigned char key, int x, int y) {
   switch (key) {
-    case 'a':
-      rotateEyePosition_x(-M_PI / 16.0);
-      break;
-    case 'd':
-      rotateEyePosition_x(M_PI / 16.0);
-      break;
-    case 'w':
-      rotateEyePosition_y(M_PI / 16.0);
-      break;
-    case 's':
-      rotateEyePosition_y(-M_PI / 16.0);
-      break;
-    case 'r':
-      eyePosition = (Point){0.0, 0.0, 2.0};
-      break;
+  // case 27: // ESC
+  //   exit(0);
+  case 'r':
+    camAngle[X] = 0.0;
+    camAngle[Y] = 0.0;
+    break;
   }
+  camPosition[Y] = lookAtPoint[Y] + camDistance * sin(camAngle[Y]);
+  camPosition[X] = lookAtPoint[X] + camDistance * cos(camAngle[Y]) * sin(camAngle[X]);
+  camPosition[Z] = lookAtPoint[Z] + camDistance * cos(camAngle[Y]) * cos(camAngle[X]);
+  glutPostRedisplay();
+}
+
+
+
+GLvoid mouse(GLint button, GLint state, GLint x, GLint y) {
+  switch (button) {
+  case GLUT_LEFT_BUTTON:
+    leftMouseDown = (state == GLUT_DOWN);
+  case GLUT_RIGHT_BUTTON:
+    rightMouseDown = (state == GLUT_DOWN);
+  default:
+    lastMouseX = x;
+    lastMouseY = y;
+  }
+}
+
+
+
+GLvoid motion(GLint x, GLint y) {
+  int dx = x - lastMouseX;
+  int dy = y - lastMouseY;
+  lastMouseX = x;
+  lastMouseY = y;
+  if (leftMouseDown) { 
+    camAngle[Y] += dy * sensitivity;
+    camAngle[X] -= dx * sensitivity;
+  }
+  camPosition[Y] = lookAtPoint[Y] + camDistance * sin(camAngle[Y]);
+  camPosition[X] = lookAtPoint[X] + camDistance * cos(camAngle[Y]) * sin(camAngle[X]);
+  camPosition[Z] = lookAtPoint[Z] + camDistance * cos(camAngle[Y]) * cos(camAngle[X]);
   glutPostRedisplay();
 }
 
@@ -91,7 +99,7 @@ void reshape(int width, int height) {
   glViewport(0, 0, width, height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(60.0, (double)width / (double)height, 0.1, 50.0);
+  gluPerspective(60.0, (double)width / (double)height, 0.5, 10.0);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -113,9 +121,9 @@ void display() {
   glShadeModel(GL_FLAT);
 
   glPushMatrix();
-    gluLookAt(eyePosition.x, eyePosition.y, eyePosition.z,
-              lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
-              upVector.x, upVector.y, upVector.z);
+    gluLookAt(camPosition[X], camPosition[Y], camPosition[Z],
+              lookAtPoint[X], lookAtPoint[Y], lookAtPoint[Z],
+              upVector[X], upVector[Y], upVector[Z]);
 
     glPushMatrix();
       glColor3d(0.0, 0.0, 1.0);
@@ -142,51 +150,51 @@ void loadHouseMesh() {
   }
 
   // back
-  mesh.faces[0].verts[0] = verts[0];
-  mesh.faces[0].verts[1] = verts[2];
-  mesh.faces[0].verts[2] = verts[8];
-  mesh.faces[0].verts[3] = verts[6];
-  mesh.faces[0].verts[4] = verts[4];
+  copyPoint(mesh.faces[0].verts[0], verts[0]);
+  copyPoint(mesh.faces[0].verts[1], verts[2]);
+  copyPoint(mesh.faces[0].verts[2], verts[8]);
+  copyPoint(mesh.faces[0].verts[3], verts[6]);
+  copyPoint(mesh.faces[0].verts[4], verts[4]);
 
   // base 
-  mesh.faces[1].verts[0] = verts[0];
-  mesh.faces[1].verts[1] = verts[4];
-  mesh.faces[1].verts[2] = verts[5];
-  mesh.faces[1].verts[3] = verts[1];
+  copyPoint(mesh.faces[1].verts[0], verts[0]);
+  copyPoint(mesh.faces[1].verts[1], verts[4]);
+  copyPoint(mesh.faces[1].verts[2], verts[5]);
+  copyPoint(mesh.faces[1].verts[3], verts[1]);
 
   // left
-  mesh.faces[2].verts[0] = verts[0];
-  mesh.faces[2].verts[1] = verts[1];
-  mesh.faces[2].verts[2] = verts[3];
-  mesh.faces[2].verts[3] = verts[2];
+  copyPoint(mesh.faces[2].verts[0], verts[0]);
+  copyPoint(mesh.faces[2].verts[1], verts[1]);
+  copyPoint(mesh.faces[2].verts[2], verts[3]);
+  copyPoint(mesh.faces[2].verts[3], verts[2]);
 
   // right
-  mesh.faces[3].verts[0] = verts[4];
-  mesh.faces[3].verts[1] = verts[6];
-  mesh.faces[3].verts[2] = verts[7];
-  mesh.faces[3].verts[3] = verts[5];
+  copyPoint(mesh.faces[3].verts[0], verts[4]);
+  copyPoint(mesh.faces[3].verts[1], verts[6]);
+  copyPoint(mesh.faces[3].verts[2], verts[7]);
+  copyPoint(mesh.faces[3].verts[3], verts[5]);
 
   // roof left
-  mesh.faces[4].verts[0] = verts[2];
-  mesh.faces[4].verts[1] = verts[3];
-  mesh.faces[4].verts[2] = verts[9];
-  mesh.faces[4].verts[3] = verts[8];
+  copyPoint(mesh.faces[4].verts[0], verts[2]);
+  copyPoint(mesh.faces[4].verts[1], verts[3]);
+  copyPoint(mesh.faces[4].verts[2], verts[9]);
+  copyPoint(mesh.faces[4].verts[3], verts[8]);
 
   // roof right
-  mesh.faces[5].verts[0] = verts[7];
-  mesh.faces[5].verts[1] = verts[6];
-  mesh.faces[5].verts[2] = verts[8];
-  mesh.faces[5].verts[3] = verts[9];
+  copyPoint(mesh.faces[5].verts[0], verts[7]);
+  copyPoint(mesh.faces[5].verts[1], verts[6]);
+  copyPoint(mesh.faces[5].verts[2], verts[8]);
+  copyPoint(mesh.faces[5].verts[3], verts[9]);
 
   // front
-  mesh.faces[6].verts[0] = verts[5];
-  mesh.faces[6].verts[1] = verts[7];
-  mesh.faces[6].verts[2] = verts[9];
-  mesh.faces[6].verts[3] = verts[3];
-  mesh.faces[6].verts[4] = verts[1];
+  copyPoint(mesh.faces[6].verts[0], verts[5]);
+  copyPoint(mesh.faces[6].verts[1], verts[7]);
+  copyPoint(mesh.faces[6].verts[2], verts[9]);
+  copyPoint(mesh.faces[6].verts[3], verts[3]);
+  copyPoint(mesh.faces[6].verts[4], verts[1]);
 
   for (int i = 0; i < mesh.numFaces; i++) {
-    mesh.faces[i].normal = newell(mesh.faces[i].verts, mesh.faces[i].numVerts);
+    newell(mesh.faces[i].normal, mesh.faces[i].verts, mesh.faces[i].numVerts);
   }
 }
 
@@ -254,14 +262,15 @@ void loadMeshFromFile() {
         cJSON_Delete(json);
         exit(1);;
       }
-      mesh.faces[i].verts[j] = (Point){x_json->valuedouble, y_json->valuedouble, z_json->valuedouble};
+      copyPoint(mesh.faces[i].verts[j], (Point){x_json->valuedouble, y_json->valuedouble, z_json->valuedouble});
     }
   }
 
   cJSON_Delete(json);
   
   for (int i = 0; i < mesh.numFaces; i++) {
-    mesh.faces[i].normal = newell(mesh.faces[i].verts, mesh.faces[i].numVerts);
+    Point normal;
+    newell(mesh.faces[i].normal, mesh.faces[i].verts, mesh.faces[i].numVerts);
   }
 }
 
@@ -291,6 +300,8 @@ int main(int argc, char **argv) {
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
+  glutMouseFunc(mouse);
+  glutMotionFunc(motion);
   glutMainLoop();
 
   freeMesh();
