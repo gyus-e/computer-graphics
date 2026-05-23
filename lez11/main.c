@@ -5,9 +5,7 @@
 #include <GL/glut.h>
 
 
-
 GLUnurbsObj *theNurb, *theNurb2, *theNurb3;
-
 
 GLfloat cp[4 * 3] = {
     -4.0, -4.0, 0.0,
@@ -64,10 +62,10 @@ void display() {
     gluLookAt(camPosition[X], camPosition[Y], camPosition[Z],
               lookAtPoint[X], lookAtPoint[Y], lookAtPoint[Z],
               upVector[X], upVector[Y], upVector[Z]);
+    
+    glPointSize(1.0);
 
     glPushMatrix();
-      glPointSize(1.0);
-  
       glColor3fv(red);
       theNurb = gluNewNurbsRenderer();
       gluNurbsCallback(theNurb, GLU_ERROR, (GLvoid (*))nurbsError);
@@ -76,7 +74,9 @@ void display() {
       gluBeginCurve(theNurb);
         gluNurbsCurve(theNurb, 8, knots, 3, &cp[0], 4, GL_MAP1_VERTEX_3);
       gluEndCurve(theNurb);
+    glPopMatrix();
 
+    glPushMatrix();
       glColor3fv(green);
       theNurb2 = gluNewNurbsRenderer();
       gluNurbsCallback(theNurb2, GLU_ERROR, (GLvoid (*))nurbsError);
@@ -85,24 +85,29 @@ void display() {
       gluBeginCurve(theNurb2);
         gluNurbsCurve(theNurb2, 8, knots, 4, &cpw[0], 4, GL_MAP1_VERTEX_4);
       gluEndCurve(theNurb2);
-
-      // glColor3fv(blue);
-      // theNurb3 = gluNewNurbsRenderer();
-      // gluNurbsCallback(theNurb3, GLU_ERROR, (GLvoid (*))nurbsError);
-      // gluNurbsProperty(theNurb3, GLU_U_STEP, 360);
-      // gluNurbsProperty(theNurb3, GLU_SAMPLING_METHOD, GLU_DOMAIN_DISTANCE);
-      // gluBeginCurve(theNurb3);
-      //   gluNurbsCurve(theNurb3, 10, circleKnots, 4, (float*)circleCpw[0], 3, GL_MAP1_VERTEX_4);
-      // gluEndCurve(theNurb3);
-  
     glPopMatrix();
+
+    glPushMatrix();
+      glColor3fv(blue);
+      theNurb3 = gluNewNurbsRenderer();
+      gluNurbsCallback(theNurb3, GLU_ERROR, (GLvoid (*))nurbsError);
+      gluNurbsProperty(theNurb3, GLU_U_STEP, 360);
+      gluNurbsProperty(theNurb3, GLU_SAMPLING_METHOD, GLU_DOMAIN_DISTANCE);
+      gluBeginCurve(theNurb3);
+        gluNurbsCurve(theNurb3, 10, circleKnots, 4, &circleCpw[0], 3, GL_MAP1_VERTEX_4);
+      gluEndCurve(theNurb3);
+    glPopMatrix();
+
   glPopMatrix();
   glutSwapBuffers();
 }
 
-void omogenizePoints(Point cpw[], const Point cp[], const size_t numPoints, const float w[]) {
+void omogenizePoints(GLfloat cpw[], const GLfloat cp[], const size_t numPoints, const float w[]) {
   for (int i = 0; i < numPoints; i++) {
-    toHomogeneousCoordinates(cpw[i], cp[i], w[i]);
+    cpw[i*4+X] = cp[i*4+X] * w[i];
+    cpw[i*4+Y] = cp[i*4+Y] * w[i];
+    cpw[i*4+Z] = cp[i*4+Z] * w[i];
+    cpw[i*4+W] = w[i];
   }
 }
 

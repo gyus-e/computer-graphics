@@ -44,8 +44,8 @@ void toHomogeneousCoordinates(Point dest, const Point p, const double w) {
 }
 
 
-int checkContinuity1(const Point *CP1, const unsigned int N1,
-                    const Point *CP2, const unsigned int N2) {
+int checkContinuity1(const Point CP1[], const unsigned int N1,
+                    const Point CP2[], const unsigned int N2) {
   if (CP1[N1-1][X] != CP2[0][X] || 
       CP1[N1-1][Y] != CP2[0][Y] || 
       CP1[N1-1][Z] != CP2[0][Z]) {
@@ -56,8 +56,8 @@ int checkContinuity1(const Point *CP1, const unsigned int N1,
 }
 
 
-int checkContinuity2(const Point *CP1, const unsigned int N1,
-                    const Point *CP2, const unsigned int N2) {
+int checkContinuity2(const Point CP1[], const unsigned int N1,
+                    const Point CP2[], const unsigned int N2) {
   if (CP1[N1-1][X] - CP1[N1-2][X] != CP2[1][X] - CP2[0][X] || 
       CP1[N1-1][Y] - CP1[N1-2][Y] != CP2[1][Y] - CP2[0][Y] || 
       CP1[N1-1][Z] - CP1[N1-2][Z] != CP2[1][Z] - CP2[0][Z]) {
@@ -84,7 +84,7 @@ void newell(Point dest, const Point verts[], const unsigned int numVerts) {
 }
 
 
-void casteljau(Point dest, const Point *CP, const unsigned int N, const double t) {
+void casteljau(Point dest, const Point CP[], const unsigned int N, const double t) {
     Point *p = malloc(N * sizeof(Point));
     for (int i = 0; i < N; i++) {
         copyPoint(p[i], CP[i]);
@@ -182,7 +182,7 @@ void plotFunction(double (*f)(const double, const double, const double), const d
 }
 
 
-void bezierCurve(const Point *CP, const unsigned int N, const double a, const double b) {
+void bezierCurve(const Point CP[], const unsigned int N, const double a, const double b) {
   glBegin(GL_LINE_STRIP);
     glVertex3d(CP[0][X], CP[0][Y], CP[0][Z]);
     for (double s = a; s <= b; s += 0.01) {
@@ -195,7 +195,7 @@ void bezierCurve(const Point *CP, const unsigned int N, const double a, const do
 }
 
 
-void rationalBezierCurve(const Point *CP, const double *w, const unsigned int N) {
+void rationalBezierCurve(const Point CP[], const double w[], const unsigned int N) {
   double *cpw = malloc(N * 4 * sizeof(double));
   for (int i = 0; i < N; i++) {
     toHomogeneousCoordinates(&cpw[i*4], CP[i], w[i]);
@@ -208,8 +208,8 @@ void rationalBezierCurve(const Point *CP, const double *w, const unsigned int N)
 }
 
 
-int compositeBezierCurve(const Point *CP1, const unsigned int N1, const double *w1,
-                          const Point *CP2, const unsigned int N2, const double *w2) {
+int compositeBezierCurve(const Point CP1[], const unsigned int N1, const double w1[],
+                          const Point CP2[], const unsigned int N2, const double w2[]) {
   if (!checkContinuity1(CP1, N1, CP2, N2)) {
     return 1;
   }
