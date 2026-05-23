@@ -10,9 +10,17 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-Point eyePosition = {0.0, 0.0, -15.0};
 const Point lookAtPoint = {0.0, 0.0, 0.0};
 const Point upVector = {0.0, 1.0, 0.0};
+const double camDistance = 20.0;
+double camAngle[2] = {0.0, 0.0};
+Point camPosition = {0.0, 0.0, camDistance};
+
+const double sensitivity = 0.01;
+int leftMouseDown = 0;
+int rightMouseDown = 0;
+int lastMouseX = 0;
+int lastMouseY = 0;
 
 const double step = 0.5;
 
@@ -63,9 +71,9 @@ void display() {
   glShadeModel(GL_FLAT);
 
   glPushMatrix();
-    gluLookAt(eyePosition.x, eyePosition.y, eyePosition.z,
-              lookAtPoint.x, lookAtPoint.y, lookAtPoint.z,
-              upVector.x, upVector.y, upVector.z);
+    gluLookAt(camPosition[X], camPosition[Y], camPosition[Z],
+              lookAtPoint[X], lookAtPoint[Y], lookAtPoint[Z],
+              upVector[X], upVector[Y], upVector[Z]);
 
     glPushMatrix();
       glColor3d(0.0, 0.0, 1.0);
@@ -79,49 +87,9 @@ void display() {
 
 
 
-void rotateEyePosition_x(double angle) {
-  double s = sin(angle);
-  double c = cos(angle);
-
-  double x = eyePosition.x * c - eyePosition.z * s;
-  double z = eyePosition.x * s + eyePosition.z * c;
-
-  eyePosition.x = x;
-  eyePosition.z = z;
-}
-
-
-
-void rotateEyePosition_y(double angle) {
-  double s = sin(angle);
-  double c = cos(angle);
-
-  double y = eyePosition.y * c - eyePosition.z * s;
-  double z = eyePosition.y * s + eyePosition.z * c;
-
-  eyePosition.y = y;
-  eyePosition.z = z;
-}
-
-
-
 GLvoid keyboard(unsigned char key, int x, int y) {
   switch (key) {
-    case 'a':
-      rotateEyePosition_x(-M_PI / 16.0);
-      break;
-    case 'd':
-      rotateEyePosition_x(M_PI / 16.0);
-      break;
-    case 'w':
-      rotateEyePosition_y(M_PI / 16.0);
-      break;
-    case 's':
-      rotateEyePosition_y(-M_PI / 16.0);
-      break;
     case 'r':
-      eyePosition = (Point){0.0, 0.0, -20.0};
-      rotateEyePosition_y(M_PI / 16.0);
       k = 0.0;
       break;
     case 0x1B: // ESC
@@ -132,6 +100,38 @@ GLvoid keyboard(unsigned char key, int x, int y) {
 }
 
 
+
+GLvoid mouse(GLint button, GLint state, GLint x, GLint y) {
+  switch (button) {
+  case GLUT_LEFT_BUTTON:
+    leftMouseDown = (state == GLUT_DOWN);
+  case GLUT_RIGHT_BUTTON:
+    rightMouseDown = (state == GLUT_DOWN);
+  default:
+    lastMouseX = x;
+    lastMouseY = y;
+  }
+}
+
+
+
+GLvoid motion(GLint x, GLint y) {
+  int dx = x - lastMouseX;
+  int dy = y - lastMouseY;
+  lastMouseX = x;
+  lastMouseY = y;
+  if (leftMouseDown) { 
+    camAngle[Y] += dy * sensitivity;
+    camAngle[X] -= dx * sensitivity;
+  }
+  camPosition[Y] = lookAtPoint[Y] + camDistance * sin(camAngle[Y]);
+  camPosition[X] = lookAtPoint[X] + camDistance * cos(camAngle[Y]) * sin(camAngle[X]);
+  camPosition[Z] = lookAtPoint[Z] + camDistance * cos(camAngle[Y]) * cos(camAngle[X]);
+  glutPostRedisplay();
+}
+
+
+
 GLvoid time(int value) {
   k+=0.5;
   glutPostRedisplay();
@@ -139,8 +139,8 @@ GLvoid time(int value) {
 }
 
 
+
 int main(int argc, char **argv) {
-  rotateEyePosition_y(M_PI / 16.0);
   glutInit(&argc, argv);
   // glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
@@ -150,6 +150,8 @@ int main(int argc, char **argv) {
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
+  glutMouseFunc(mouse);
+  glutMotionFunc(motion);
   glutTimerFunc(0, time, 0);
   glutMainLoop();
   return 0;
