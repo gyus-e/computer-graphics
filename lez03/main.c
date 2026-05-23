@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
   glutInitDisplayMode(GLUT_RGB);
   glutInitWindowPosition(300, 100);
   glutInitWindowSize(520, 520);
-  int window = glutCreateWindow(argv[0]);
+  (void)glutCreateWindow(argv[0]);
   glutDisplayFunc(redraw);
   glutMainLoop();
   return 0;

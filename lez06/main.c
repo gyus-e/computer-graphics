@@ -3,7 +3,6 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glut.h>
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -15,7 +14,7 @@ e basi circoscritte dalla circonferenza di raggio 0.5
 
 Utilizzando in maniera combinata le callback per mouse e tastiera,
 rendere modificabili i tre valori di altezza larghezza e profondità
-del Volume di Visa prendendo come valori iniziali quelli di:
+del Volume di Vista prendendo come valori iniziali quelli di:
 glOrtho(-1, 1, -1, 1, 1, 5)
 */
 
@@ -23,6 +22,7 @@ GLvoid display();
 GLvoid setProjection();
 GLvoid keyboard(unsigned char key, GLint x, GLint y);
 GLvoid mouse(GLint button, GLint state, GLint x, GLint y);
+GLvoid motion(GLint x, GLint y);
 GLvoid gluPerspectiveWrapper(GLdouble left, GLdouble right, GLdouble bottom,
                              GLdouble top, GLdouble near_plane,
                              GLdouble far_plane);
@@ -35,9 +35,15 @@ GLdouble scale[3] = {1.0, 1.0, 1.0};
 void (*projection_func)(GLdouble, GLdouble, GLdouble, GLdouble, GLdouble,
                         GLdouble) = glOrtho;
 
+const double step = 0.1;
+const double sensitivity = 0.5;
+int leftMouseDown = 0;
+int rightMouseDown = 0;
+int lastMouseX = 0;
+int lastMouseY = 0;
+
 int main(int argc, char **argv) {
   const GLint size = 450;
-  GLint window;
 
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);
@@ -45,12 +51,13 @@ int main(int argc, char **argv) {
 
   glutInitWindowPosition(0, 0);
   glutInitWindowSize(size, size);
-  window = glutCreateWindow(WINDOW_TITLE);
+  (void)glutCreateWindow(WINDOW_TITLE);
 
   setProjection();
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
   glutMouseFunc(mouse);
+  glutMotionFunc(motion);
   glutMainLoop();
   return 0;
 }
@@ -67,7 +74,6 @@ GLvoid display() {
   const Point lower_base_center = {0.2, 0.2, -0.5};
   const Point upper_base_center = {0.2, 0.2, -1.5};
   const GLdouble radius = 0.5;
-  const GLdouble rgb[] = {0.0, 0.0, 1.0};
   Point points[4];
   GLdouble angle, x, y, z;
   int i;
@@ -76,14 +82,15 @@ GLvoid display() {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
-  glTranslatef(translate[0], translate[1], translate[2]);
-  glRotatef(rotate[0], 1.0, 0.0, 0.0);
-  glRotatef(rotate[1], 0.0, 1.0, 0.0);
-  glRotatef(rotate[2], 0.0, 0.0, 1.0);
-  glScalef(scale[0], scale[1], scale[2]);
+  glTranslatef(translate[X], translate[Y], translate[Z]);
+  glRotatef(rotate[X], 1.0, 0.0, 0.0);
+  glRotatef(rotate[Y], 0.0, 1.0, 0.0);
+  glRotatef(rotate[Z], 0.0, 0.0, 1.0);
+  glScalef(scale[X], scale[Y], scale[Z]);
 
   glPointSize(1.0);
-  drawPrism(sides, &lower_base_center, &upper_base_center, radius, rgb);
+  glColor3fv(blue);
+  drawPrism(sides, lower_base_center, upper_base_center, radius);
 
   checkErrors(WINDOW_TITLE);
   glFlush();
@@ -92,40 +99,40 @@ GLvoid display() {
 GLvoid keyboard(unsigned char key, GLint x, GLint y) {
   switch (key) {
   case 'w':
-    view[TOP] += 0.1;
+    view[TOP] += step;
     break;
   case 'W':
-    view[TOP] -= 0.1;
+    view[TOP] -= step;
     break;
   case 's':
-    view[BOTTOM] += 0.1;
+    view[BOTTOM] += step;
     break;
   case 'S':
-    view[BOTTOM] -= 0.1;
+    view[BOTTOM] -= step;
     break;
   case 'a':
-    view[LEFT] += 0.1;
+    view[LEFT] += step;
     break;
   case 'A':
-    view[LEFT] -= 0.1;
+    view[LEFT] -= step;
     break;
   case 'd':
-    view[RIGHT] += 0.1;
+    view[RIGHT] += step;
     break;
   case 'D':
-    view[RIGHT] -= 0.1;
+    view[RIGHT] -= step;
     break;
   case 'q':
-    view[NEAR_PLANE] += 0.1;
+    view[NEAR_PLANE] += step;
     break;
   case 'Q':
-    view[NEAR_PLANE] -= 0.1;
+    view[NEAR_PLANE] -= step;
     break;
   case 'e':
-    view[FAR_PLANE] += 0.1;
+    view[FAR_PLANE] += step;
     break;
   case 'E':
-    view[FAR_PLANE] -= 0.1;
+    view[FAR_PLANE] -= step;
     break;
   case 'r':
     view[LEFT] = -1.0;
@@ -134,15 +141,15 @@ GLvoid keyboard(unsigned char key, GLint x, GLint y) {
     view[TOP] = 1.0;
     view[NEAR_PLANE] = 1.0;
     view[FAR_PLANE] = 5.0;
-    translate[0] = 0.0;
-    translate[1] = 0.0;
-    translate[2] = -3.0;
-    rotate[0] = 0.0;
-    rotate[1] = 0.0;
-    rotate[2] = 0.0;
-    scale[0] = 1.0;
-    scale[1] = 1.0;
-    scale[2] = 1.0;
+    translate[X] = 0.0;
+    translate[Y] = 0.0;
+    translate[Z] = -3.0;
+    rotate[X] = 0.0;
+    rotate[Y] = 0.0;
+    rotate[Z] = 0.0;
+    scale[X] = 1.0;
+    scale[Y] = 1.0;
+    scale[Z] = 1.0;
     break;
   case '1':
     printf("Projection: glOrtho\n");
@@ -166,27 +173,29 @@ GLvoid keyboard(unsigned char key, GLint x, GLint y) {
 GLvoid mouse(GLint button, GLint state, GLint x, GLint y) {
   switch (button) {
   case GLUT_LEFT_BUTTON:
-    if (state == GLUT_DOWN) {
-      rotate[0] += 10.0;
-      setProjection();
-      glutPostRedisplay();
-    }
-    break;
+    leftMouseDown = (state == GLUT_DOWN);
   case GLUT_RIGHT_BUTTON:
-    if (state == GLUT_DOWN) {
-      rotate[1] -= 10.0;
-      setProjection();
-      glutPostRedisplay();
-    }
-    break;
-  case GLUT_MIDDLE_BUTTON:
-    if (state == GLUT_DOWN) {
-      rotate[2] += 10.0;
-      setProjection();
-      glutPostRedisplay();
-    }
-    break;
+    rightMouseDown = (state == GLUT_DOWN);
+  default:
+    lastMouseX = x;
+    lastMouseY = y;
   }
+}
+
+GLvoid motion(GLint x, GLint y) {
+  int dx = x - lastMouseX;
+  int dy = y - lastMouseY;
+  lastMouseX = x;
+  lastMouseY = y;
+  if (leftMouseDown) { 
+    rotate[X] += dy * sensitivity;
+    rotate[Y] += dx * sensitivity;
+  }
+  if (rightMouseDown) {
+    rotate[Z] += dx * sensitivity;
+  }
+  setProjection();
+  glutPostRedisplay();
 }
 
 GLvoid gluPerspectiveWrapper(GLdouble left, GLdouble right, GLdouble bottom,
