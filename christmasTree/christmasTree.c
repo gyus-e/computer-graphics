@@ -5,18 +5,26 @@
 #include <GL/freeglut_std.h>
 
 
-#define X 0
-#define Y 1
-#define Z 2
-
+enum {X, Y, Z};
 
 const double upVector[3] = {0.0, 1.0, 0.0};
 const double lookAtPoint[3] = {0.0, 0.0, 0.0};
 
-const double step = 0.5;
 const double camDistance = 50.0;
 double camAngle[2] = {0.0, 0.0};
 double camPosition[3] = {0.0, 0.0, camDistance};
+
+const double sensitivity = 0.02;
+int leftMouseDown = 0;
+int rightMouseDown = 0;
+int lastMouseX = 0;
+int lastMouseY = 0;
+
+double baseY = -3.0;
+double baseHeight = 1.0;
+double maxHeight = 6.0;
+
+unsigned int currentLight = 0;
 
 
 
@@ -33,46 +41,61 @@ void reshape(int width, int height) {
 
 
 void display(){
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glClearDepth(1.0);
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+  glShadeModel(GL_SMOOTH);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_LIGHTING);
-  glEnable(GL_LIGHT0);
   glEnable(GL_AUTO_NORMAL);
-  glShadeModel(GL_FLAT);
-  
-  glPointSize(1.0);
-  glColor3d(0.0, 0.0, 0.0);
+  glEnable(GL_NORMALIZE);
+  glEnable(GL_COLOR_MATERIAL);
+  glEnable(GL_LIGHT0);
+
 
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
 
+  glPointSize(1.0);
+  
+  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+  glColor3d(0.1, 0.01, 0.0);
   glPushMatrix();
     gluLookAt(camPosition[X], camPosition[Y], camPosition[Z], lookAtPoint[X],
                 lookAtPoint[Y], lookAtPoint[Z], upVector[X], upVector[Y], upVector[Z]);
 
-
     glPushMatrix();      
-      glTranslated(0.0, 0.0, 0.0);
+      glTranslated(0.0, baseY, 0.0);
       glRotated(-90.0, 1.0, 0.0, 0.0);
-
       GLUquadricObj *base = gluNewQuadric();
       gluQuadricDrawStyle(base, GLU_FILL); 
       gluQuadricOrientation(base, GLU_OUTSIDE);
       gluQuadricNormals(base, GLU_FLAT);
-      gluCylinder(base, 0.5, 0.5, 1.0, 30, 10);
+      gluCylinder(base, 0.5, 0.5, baseHeight, 30, 10);
     glPopMatrix();
 
-    for (double h = 1.0; h <= 5.0; h+=0.5) {
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glColor3d(0.0, 0.3, 0.0);
+    for (double h = baseY + baseHeight; h <= maxHeight; h+=0.5) {
       glPushMatrix();      
         glTranslated(0.0, h, 0.0);
         glRotated(-90.0, 1.0, 0.0, 0.0);
-
         GLUquadricObj *cylinder = gluNewQuadric();
         gluQuadricDrawStyle(cylinder, GLU_FILL); 
         gluQuadricOrientation(cylinder, GLU_OUTSIDE);
         gluQuadricNormals(cylinder, GLU_FLAT);
-        gluCylinder(cylinder, 5.0 - h + 1, 0.1, 1.0, 30, 10);
+        gluCylinder(cylinder, maxHeight - h + 1, 0.1, 1.0, 30, 10);
+      glPopMatrix();
+    }
+
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
+    glColor3d(1.0, 1.0, 0.0);
+    for (int i = 0; i < 2; i++) {
+      glPushMatrix();
+        glTranslated(0.0, maxHeight + 1.0 + i*0.2, 0.0);
+        glRotated(i*180+35.0, 0.0, 0.0, 1.0);
+        glScaled(0.6, 0.6, 0.6);
+        glutSolidTetrahedron();
       glPopMatrix();
     }
 
@@ -84,29 +107,57 @@ void display(){
 
 void keyboard(unsigned char key, int x, int y) {
   switch (key) {
-  // case 27: // ESC
-  //   exit(0);
-  case 'w':
-    camAngle[Y] -= step;
+  case 27: // ESC
+    exit(0);
     break;
-  case 's':
-    camAngle[Y] += step;
+  default:
+    return;
+  }
+  glutPostRedisplay();
+}
+
+
+
+GLvoid mouse(GLint button, GLint state, GLint x, GLint y) {
+  switch (button) {
+  case GLUT_LEFT_BUTTON:
+    leftMouseDown = (state == GLUT_DOWN);
     break;
-  case 'a':
-    camAngle[X] += step;
+  case GLUT_RIGHT_BUTTON:
+    rightMouseDown = (state == GLUT_DOWN);
     break;
-  case 'd':
-    camAngle[X] -= step;
-    break;
-  case 'r':
-    camAngle[X] = 0.0;
-    camAngle[Y] = 0.0;
+  default:
+    lastMouseX = x;
+    lastMouseY = y;
     break;
   }
+}
+
+
+
+GLvoid motion(GLint x, GLint y) {
+  int dx = x - lastMouseX;
+  int dy = y - lastMouseY;
+  lastMouseX = x;
+  lastMouseY = y;
+  if (leftMouseDown) { 
+    camAngle[Y] += dy * sensitivity;
+    camAngle[X] -= dx * sensitivity;
+  }
+  if (camAngle[Y] > 0.5) camAngle[Y] = 0.5;
+  if (camAngle[Y] < -0.5) camAngle[Y] = -0.5;
   camPosition[Y] = lookAtPoint[Y] + camDistance * sin(camAngle[Y]);
   camPosition[X] = lookAtPoint[X] + camDistance * cos(camAngle[Y]) * sin(camAngle[X]);
   camPosition[Z] = lookAtPoint[Z] + camDistance * cos(camAngle[Y]) * cos(camAngle[X]);
   glutPostRedisplay();
+}
+
+
+
+GLvoid timer(GLint value) {
+  //...
+  glutPostRedisplay();
+  glutTimerFunc(1000, timer, 0);
 }
 
 
@@ -121,6 +172,9 @@ int main(int argc, char **argv) {
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
   glutKeyboardFunc(keyboard);
+  glutMouseFunc(mouse);
+  glutMotionFunc(motion);
+  glutTimerFunc(1000, timer, 0);
   glutMainLoop();
   return 0;
 }
