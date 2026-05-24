@@ -33,6 +33,7 @@ void nurbsError(GLenum errorCode);
 
 void copyPoint(Point dest, const Point src);
 void toHomogeneousCoordinates(Point dest, const Point p, const double w);
+void omogenizePoints(GLfloat cpw[], const unsigned int numPoints, const unsigned int step, const GLfloat cp[], const float w[]);
 
 int checkContinuity1(const Point CP1[], const unsigned int N1, const Point CP2[], const unsigned int N2);
 int checkContinuity2(const Point CP1[], const unsigned int N1, const Point CP2[], const unsigned int N2);

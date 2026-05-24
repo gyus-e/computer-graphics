@@ -5,20 +5,31 @@
 #include <GL/glut.h>
 
 
+
 GLUnurbsObj *theNurb, *theNurb2, *theNurb3;
 
+
+
+const unsigned int deg = 3;
+const unsigned int order = deg + 1;
+const unsigned int numPoints = 4;
+const unsigned int numKnots = numPoints + order;
 GLfloat cp[4 * 3] = {
     -4.0, -4.0, 0.0,
     -2.0, 4.0, 0.0,
     2.0, -4.0, 0.0,
     4.0, 4.0, 0.0
 };
-
-float w[4] = {1.0, 5.0, 1.0, 1.0};
 float knots[8] = {0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0};
-
+float w[4] = {1.0, 5.0, 1.0, 1.0};
 GLfloat cpw[4 * 4];
 
+
+
+const unsigned int circleDeg = 2;
+const unsigned int circleOrder = circleDeg + 1;
+const unsigned int circleNumPoints = 7;
+const unsigned int circleNumKnots = circleNumPoints + circleOrder;
 GLfloat circleCP[7 * 4] = {
     1.0, 2.0, 0.0, 0.0,
     1.0, 3.0, 0.0, 0.0,
@@ -28,9 +39,10 @@ GLfloat circleCP[7 * 4] = {
     1.0, 1.0, 0.0, 0.0,
     1.0, 2.0, 0.0, 0.0
 };
-float circleW[7] = {1.0, 0.5, 0.5, 1.0, 0.5, 0.5, 1.0};
 float circleKnots[10] = {0.0, 0.0, 0.0, 0.25, 0.5, 0.5, 0.75, 1.0, 1.0, 1.0};
+float circleW[7] = {1.0, 0.5, 0.5, 1.0, 0.5, 0.5, 1.0};
 GLfloat circleCpw[7 * 4];
+
 
 
 Point camPosition = {0.0, 0.0, 10.0};
@@ -72,7 +84,8 @@ void display() {
       gluNurbsProperty(theNurb, GLU_U_STEP, 360);
       gluNurbsProperty(theNurb, GLU_SAMPLING_METHOD, GLU_DOMAIN_DISTANCE);
       gluBeginCurve(theNurb);
-        gluNurbsCurve(theNurb, 8, knots, 3, &cp[0], 4, GL_MAP1_VERTEX_3);
+        // 3d points: stride = 3
+        gluNurbsCurve(theNurb, numKnots, knots, 3, &cp[0], order, GL_MAP1_VERTEX_3); 
       gluEndCurve(theNurb);
     glPopMatrix();
 
@@ -83,7 +96,8 @@ void display() {
       gluNurbsProperty(theNurb2, GLU_U_STEP, 360);
       gluNurbsProperty(theNurb2, GLU_SAMPLING_METHOD, GLU_DOMAIN_DISTANCE);
       gluBeginCurve(theNurb2);
-        gluNurbsCurve(theNurb2, 8, knots, 4, &cpw[0], 4, GL_MAP1_VERTEX_4);
+        // homogenized points: stride = 4
+        gluNurbsCurve(theNurb2, numKnots, knots, 4, &cpw[0], order, GL_MAP1_VERTEX_4); 
       gluEndCurve(theNurb2);
     glPopMatrix();
 
@@ -94,7 +108,7 @@ void display() {
       gluNurbsProperty(theNurb3, GLU_U_STEP, 360);
       gluNurbsProperty(theNurb3, GLU_SAMPLING_METHOD, GLU_DOMAIN_DISTANCE);
       gluBeginCurve(theNurb3);
-        gluNurbsCurve(theNurb3, 10, circleKnots, 4, &circleCpw[0], 3, GL_MAP1_VERTEX_4);
+        gluNurbsCurve(theNurb3, circleNumKnots, circleKnots, 4, &circleCpw[0], circleOrder, GL_MAP1_VERTEX_4);
       gluEndCurve(theNurb3);
     glPopMatrix();
 
@@ -102,18 +116,9 @@ void display() {
   glutSwapBuffers();
 }
 
-void omogenizePoints(GLfloat cpw[], const GLfloat cp[], const size_t numPoints, const float w[]) {
-  for (int i = 0; i < numPoints; i++) {
-    cpw[i*4+X] = cp[i*4+X] * w[i];
-    cpw[i*4+Y] = cp[i*4+Y] * w[i];
-    cpw[i*4+Z] = cp[i*4+Z] * w[i];
-    cpw[i*4+W] = w[i];
-  }
-}
-
 int main(int argc, char **argv) {
-  omogenizePoints(cpw, cp, 4, w);
-  omogenizePoints(circleCpw, circleCP, 7, circleW);
+  omogenizePoints(cpw, numPoints, 3, cp, w);
+  omogenizePoints(circleCpw, circleNumPoints, 4, circleCP, circleW);
 
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);

@@ -4,6 +4,7 @@
 #include <GL/glut.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 
 const float white[3] = {1.0, 1.0, 1.0};
@@ -47,6 +48,16 @@ void toHomogeneousCoordinates(Point dest, const Point p, const double w) {
   dest[Y] = p[Y] * w;
   dest[Z] = p[Z] * w;
   dest[W] = w;
+}
+
+
+void omogenizePoints(GLfloat cpw[], const unsigned int numPoints, const unsigned int step, const GLfloat cp[], const float w[]) {
+  for (int i = 0; i < numPoints; i++) {
+    cpw[i*4+X] = cp[i*step+X] * w[i];
+    cpw[i*4+Y] = cp[i*step+Y] * w[i];
+    cpw[i*4+Z] = cp[i*step+Z] * w[i];
+    cpw[i*4+W] = w[i];
+  }
 }
 
 
