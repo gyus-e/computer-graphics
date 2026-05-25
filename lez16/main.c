@@ -15,13 +15,22 @@ Il punto di vista deve essere posizionato vicino al centro del tracciato del per
 
 enum {X, Y, Z};
 
-const double step = 1.0;
-const double fishDistance = 30.0;
+const double fishSpeedX = 0.1;
+const double fishSpeedZ = 0.1;
 const double upVector[3] = {0.0, 1.0, 0.0};
-double camPosition[3] = {0.0, 0.0, 0.0};
-double fishPosition[3] = {0.0, 0.0, fishDistance};
+float camPosition[3] = {0.0, 0.0, 0.0};
+float fishT = 0.0;
+float fishStartX = -10.0;
+float fishEndX = 10.0;
+float fishPosition[3] = {-10.0, 0.0, 30.0};
 
 unsigned * read_texture(char *name, int *width, int *height, int *components);
+
+void getPointOnCircumference(float dest[3], const float center[3], const double radius, const double angle) {
+  dest[X] = center[X] + radius * cos(angle);
+  dest[Z] = center[Z] + radius * sin(angle);
+//   dest[Z] = center[Z];
+}
 
 void reshape(int width, int height) {
   if (height == 0)
@@ -29,7 +38,7 @@ void reshape(int width, int height) {
   glViewport(0, 0, width, height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(20.0, (double)width / (double)height, 20.0, 100.0);
+  gluPerspective(20.0, (double)width / (double)height, 5.0, 100.0);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -71,6 +80,17 @@ void display() {
   glutSwapBuffers();
 }
 
+void idle() {
+  if (fishPosition[X] > fishEndX) {
+    fishPosition[X] = fishStartX;
+  } else {
+    fishPosition[X] += fishSpeedX;
+    fishPosition[Z] = 30.0 + sin(fishT);
+    fishT += fishSpeedZ;
+  }
+  glutPostRedisplay();
+}
+
 int main(int argc, char** argv) {
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
@@ -79,6 +99,7 @@ int main(int argc, char** argv) {
   (void)glutCreateWindow("TEXTURE");
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
+  glutIdleFunc(idle);
   glutMainLoop();
   return 0;
 }
