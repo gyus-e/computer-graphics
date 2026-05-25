@@ -57,12 +57,12 @@ void display(){
 
   glPointSize(1.0);
   
-  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-  glColor3d(0.1, 0.01, 0.0);
   glPushMatrix();
     gluLookAt(camPosition[X], camPosition[Y], camPosition[Z], lookAtPoint[X],
                 lookAtPoint[Y], lookAtPoint[Z], upVector[X], upVector[Y], upVector[Z]);
-
+    
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glColor3d(0.1, 0.01, 0.0);
     glPushMatrix();      
       glTranslated(0.0, baseY, 0.0);
       glRotated(-90.0, 1.0, 0.0, 0.0);
