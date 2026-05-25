@@ -52,6 +52,19 @@ void display() {
   glPushMatrix();
     gluLookAt(camPosition[X], camPosition[Y], camPosition[Z], lookAtPoint[X],
                 lookAtPoint[Y], lookAtPoint[Z], upVector[X], upVector[Y], upVector[Z]);
+    glPointSize(1.0);
+
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glColor3f(0.0, 0.0, 1.0);
+    glPushMatrix();
+    //   glTranslated(0.0, baseY, 0.0);
+      glRotated(-90.0, 0.0, 1.0, 0.0);
+      GLUquadricObj *fish = gluNewQuadric();
+      gluQuadricDrawStyle(fish, GLU_FILL); 
+      gluQuadricOrientation(fish, GLU_OUTSIDE);
+      gluQuadricNormals(fish, GLU_FLAT);
+      gluCylinder(fish, 0.5, 0.5, 1.5, 30, 10);
+    glPopMatrix();
 
   glPopMatrix();
   glutSwapBuffers();
@@ -67,5 +80,4 @@ int main(int argc, char** argv) {
   glutDisplayFunc(display);
   glutMainLoop();
   return 0;
-
 }
