@@ -16,9 +16,10 @@ Il punto di vista deve essere posizionato vicino al centro del tracciato del per
 enum {X, Y, Z};
 
 const double step = 1.0;
+const double fishDistance = 30.0;
 const double upVector[3] = {0.0, 1.0, 0.0};
-double lookAtPoint[3] = {0.0, 0.0, 0.0};
-double camPosition[3] = {0.0, 0.0, 30.0};
+double camPosition[3] = {0.0, 0.0, 0.0};
+double fishPosition[3] = {0.0, 0.0, fishDistance};
 
 unsigned * read_texture(char *name, int *width, int *height, int *components);
 
@@ -50,14 +51,14 @@ void display() {
   glPointSize(1.0);
   
   glPushMatrix();
-    gluLookAt(camPosition[X], camPosition[Y], camPosition[Z], lookAtPoint[X],
-                lookAtPoint[Y], lookAtPoint[Z], upVector[X], upVector[Y], upVector[Z]);
+    gluLookAt(camPosition[X], camPosition[Y], camPosition[Z], fishPosition[X],
+                fishPosition[Y], fishPosition[Z], upVector[X], upVector[Y], upVector[Z]);
     glPointSize(1.0);
 
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glColor3f(0.0, 0.0, 1.0);
     glPushMatrix();
-    //   glTranslated(0.0, baseY, 0.0);
+      glTranslated(fishPosition[X], fishPosition[Y], fishPosition[Z]);
       glRotated(-90.0, 0.0, 1.0, 0.0);
       GLUquadricObj *fish = gluNewQuadric();
       gluQuadricDrawStyle(fish, GLU_FILL); 
