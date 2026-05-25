@@ -15,14 +15,21 @@ Il punto di vista deve essere posizionato vicino al centro del tracciato del per
 
 enum {X, Y, Z};
 
+float camPosition[3] = {0.0, 0.0, 0.0};
+const double upVector[3] = {0.0, 1.0, 0.0};
+
 const double fishSpeedX = 0.1;
 const double fishSpeedZ = 0.1;
-const double upVector[3] = {0.0, 1.0, 0.0};
-float camPosition[3] = {0.0, 0.0, 0.0};
+const float fishStartX = -50.0;
+const float fishEndX = 50.0;
 float fishT = 0.0;
-float fishStartX = -10.0;
-float fishEndX = 10.0;
-float fishPosition[3] = {-10.0, 0.0, 30.0};
+float fishPosition[3] = {fishStartX, 0.0, 30.0};
+
+char  *imageFileName = "fish.rgba"; 
+unsigned  *image; 
+GLsizei  width=640, height=480; 
+GLsizei  imageWidth, imageHeight, components; 
+GLdouble  aspect;
 
 unsigned * read_texture(char *name, int *width, int *height, int *components);
 
@@ -64,6 +71,7 @@ void display() {
                 fishPosition[Y], fishPosition[Z], upVector[X], upVector[Y], upVector[Z]);
     glPointSize(1.0);
 
+    
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glColor3f(0.0, 0.0, 1.0);
     glPushMatrix();
