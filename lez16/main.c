@@ -4,8 +4,6 @@ Il punto di vista deve essere posizionato vicino al centro del tracciato del per
 • Caricare l’immagine fish.rgba
 • Utilizzare glutIdleFunc per animare il supporto dell’immagine.
 */
-
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <GL/freeglut_std.h>
@@ -13,10 +11,12 @@ Il punto di vista deve essere posizionato vicino al centro del tracciato del per
 #include <GL/glu.h>
 #include <GL/glut.h>
 
+#define NUM_TEXTURES 2
+
 enum {X, Y, Z};
 
-float camPosition[3] = {0.0, 0.0, 0.0};
 const double upVector[3] = {0.0, 1.0, 0.0};
+float camPosition[3] = {0.0, 0.0, 0.0};
 
 const double fishSpeedX = 0.1;
 const double fishSpeedZ = 0.1;
@@ -60,7 +60,7 @@ void reshape(int width, int height) {
 
 void display() {
   glClearDepth(1.0);
-  glClearColor(0.0, 0.0, 0.3, 1.0);
+  glClearColor(0.0, 0.0, 0.0, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glShadeModel(GL_SMOOTH);
   glEnable(GL_DEPTH_TEST);
@@ -95,16 +95,16 @@ void display() {
     
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glColor3f(1.0, 1.0, 1.0);
-    for (int i = 0; i < 2; i++) {
+    for (int i = 0; i < NUM_TEXTURES; i++) {
       int k = (i == 0) ? 1 : -1;
       glBindTexture(GL_TEXTURE_2D, texNames[i]);
       glPushMatrix();
         glTranslated(k*fishPosition[X], fishPosition[Y], fishPosition[Z]+k);
         glBegin(GL_QUADS);
           glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -0.5, 0.0);
-          glTexCoord2f(1.0, 0.0); glVertex3f( 1.0, -0.5, 0.0);
-          glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  0.5, 0.0);
-          glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  0.5, 0.0);
+          glTexCoord2f(1.0, 0.0); glVertex3f(1.0,  -0.5, 0.0);
+          glTexCoord2f(1.0, 1.0); glVertex3f(1.0,  0.5,  0.0);
+          glTexCoord2f(0.0, 1.0); glVertex3f(-1.0, 0.5,  0.0);
         glEnd();
       glPopMatrix();
     }
@@ -139,10 +139,10 @@ void keyboard(unsigned char key, int x, int y) {
 
 int main(int argc, char** argv) {
   const GLsizei sDims = 256;
-  char *imageFileNames[2] = {"fish.rgba", "fisha.rgba"}; 
-  GLsizei imageWidth[2], imageHeight[2], components[2]; 
-  unsigned *image[2];
-  for (int i = 0; i < 2; i++) {
+  char *imageFileNames[NUM_TEXTURES] = {"fish.rgba", "fisha.rgba"}; 
+  GLsizei imageWidth[NUM_TEXTURES], imageHeight[NUM_TEXTURES], components[NUM_TEXTURES]; 
+  unsigned *image[NUM_TEXTURES];
+  for (int i = 0; i < NUM_TEXTURES; i++) {
     image[i] = read_texture(imageFileNames[i], &imageWidth[i], &imageHeight[i], &components[i]); 
   }  
   
@@ -152,8 +152,8 @@ int main(int argc, char** argv) {
   glutInitWindowSize(800, 800);
   (void)glutCreateWindow("TEXTURE");
   
-  glGenTextures(2, texNames);
-  for (int i = 0; i < 2; i++) {
+  glGenTextures(NUM_TEXTURES, texNames);
+  for (int i = 0; i < NUM_TEXTURES; i++) {
     glBindTexture(GL_TEXTURE_2D, texNames[i]);
     initTexture(image[i], imageWidth[i], imageHeight[i], sDims, sDims); 
   }
