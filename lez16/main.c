@@ -20,23 +20,32 @@ const double upVector[3] = {0.0, 1.0, 0.0};
 
 const double fishSpeedX = 0.1;
 const double fishSpeedZ = 0.1;
-const float fishStartX = -50.0;
-const float fishEndX = 50.0;
+const float fishStartX = -30.0;
+const float fishEndX = 30.0;
+const float fishStartZ = -50.0;
 float fishT = 0.0;
-float fishPosition[3] = {fishStartX, 0.0, 30.0};
+float fishPosition[3] = {fishStartX, 0.0, fishStartZ};
+GLuint texNames[2];
 
-char  *imageFileName = "fish.rgba"; 
-unsigned  *image; 
-GLsizei  width=640, height=480; 
-GLsizei  imageWidth, imageHeight, components; 
-GLdouble  aspect;
+int currentExercise = 1;
 
-unsigned * read_texture(char *name, int *width, int *height, int *components);
+unsigned *read_texture(char *name, int *width, int *height, int *components);
 
-void getPointOnCircumference(float dest[3], const float center[3], const double radius, const double angle) {
-  dest[X] = center[X] + radius * cos(angle);
-  dest[Z] = center[Z] + radius * sin(angle);
-//   dest[Z] = center[Z];
+void initTexture (unsigned *image, const GLsizei imageWidth, const GLsizei imageHeight, const unsigned int sWidth, const unsigned int sHeight) {
+  unsigned *sImage = (unsigned *)malloc(sWidth * sHeight * 4 * sizeof(unsigned));
+   (void)gluScaleImage(
+    GL_RGBA, 
+    imageWidth, imageHeight,  GL_UNSIGNED_BYTE,   image, 
+    sWidth,    sHeight,     GL_UNSIGNED_BYTE,  sImage
+  );
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  glTexImage2D(
+    GL_TEXTURE_2D, 0, GL_RGBA, 
+    sWidth, sHeight, 0, 
+    GL_RGBA, GL_UNSIGNED_BYTE, sImage
+  );
 }
 
 void reshape(int width, int height) {
@@ -45,19 +54,21 @@ void reshape(int width, int height) {
   glViewport(0, 0, width, height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(20.0, (double)width / (double)height, 5.0, 100.0);
+  gluPerspective(20.0, (double)width / (double)height, 30.0, 100.0);
   glMatrixMode(GL_MODELVIEW);
 }
 
 void display() {
   glClearDepth(1.0);
+  glClearColor(0.0, 0.0, 0.3, 1.0);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   glShadeModel(GL_SMOOTH);
   glEnable(GL_DEPTH_TEST);
   glEnable(GL_LIGHTING);
   glEnable(GL_AUTO_NORMAL);
   glEnable(GL_NORMALIZE);
-  glEnable(GL_COLOR_MATERIAL);
+  glEnable(GL_COLOR_MATERIAL);  
+  glEnable(GL_TEXTURE_2D);
   
   glEnable(GL_LIGHT0);
   
@@ -67,23 +78,36 @@ void display() {
   glPointSize(1.0);
   
   glPushMatrix();
-    gluLookAt(camPosition[X], camPosition[Y], camPosition[Z], fishPosition[X],
-                fishPosition[Y], fishPosition[Z], upVector[X], upVector[Y], upVector[Z]);
+    if (currentExercise == 1) {
+      gluLookAt(
+        camPosition[X], camPosition[Y], camPosition[Z], 
+        fishPosition[X], fishPosition[Y], fishPosition[Z], 
+        upVector[X], upVector[Y], upVector[Z]
+      );
+    } else {
+      gluLookAt(
+        camPosition[X], camPosition[Y], camPosition[Z], 
+        0.0, 0.0, fishStartZ, 
+        upVector[X], upVector[Y], upVector[Z]
+      );
+    }
     glPointSize(1.0);
-
     
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-    glColor3f(0.0, 0.0, 1.0);
-    glPushMatrix();
-      glTranslated(fishPosition[X], fishPosition[Y], fishPosition[Z]);
-      glRotated(-90.0, 0.0, 1.0, 0.0);
-      GLUquadricObj *fish = gluNewQuadric();
-      gluQuadricDrawStyle(fish, GLU_FILL); 
-      gluQuadricOrientation(fish, GLU_OUTSIDE);
-      gluQuadricNormals(fish, GLU_FLAT);
-      gluCylinder(fish, 0.5, 0.5, 1.5, 30, 10);
-    glPopMatrix();
-
+    glColor3f(1.0, 1.0, 1.0);
+    for (int i = 0; i < 2; i++) {
+      int k = (i == 0) ? 1 : -1;
+      glBindTexture(GL_TEXTURE_2D, texNames[i]);
+      glPushMatrix();
+        glTranslated(k*fishPosition[X], fishPosition[Y], fishPosition[Z]+k);
+        glBegin(GL_QUADS);
+          glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -0.5, 0.0);
+          glTexCoord2f(1.0, 0.0); glVertex3f( 1.0, -0.5, 0.0);
+          glTexCoord2f(1.0, 1.0); glVertex3f( 1.0,  0.5, 0.0);
+          glTexCoord2f(0.0, 1.0); glVertex3f(-1.0,  0.5, 0.0);
+        glEnd();
+      glPopMatrix();
+    }
   glPopMatrix();
   glutSwapBuffers();
 }
@@ -91,23 +115,52 @@ void display() {
 void idle() {
   if (fishPosition[X] > fishEndX) {
     fishPosition[X] = fishStartX;
+    fishT = 0.0;
   } else {
     fishPosition[X] += fishSpeedX;
-    fishPosition[Z] = 30.0 + sin(fishT);
+    fishPosition[Z] = fishStartZ + 2*sin(fishT);
     fishT += fishSpeedZ;
   }
   glutPostRedisplay();
 }
 
+void keyboard(unsigned char key, int x, int y) {
+  switch (key) {
+    case '1':
+      currentExercise = 1;
+      break;
+    case '2':
+      currentExercise = 2;
+      break;
+    default:
+      break;
+  }
+}
+
 int main(int argc, char** argv) {
+  const GLsizei sDims = 256;
+  char *imageFileNames[2] = {"fish.rgba", "fisha.rgba"}; 
+  GLsizei imageWidth[2], imageHeight[2], components[2]; 
+  unsigned *image[2];
+  for (int i = 0; i < 2; i++) {
+    image[i] = read_texture(imageFileNames[i], &imageWidth[i], &imageHeight[i], &components[i]); 
+  }  
+  
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
   glutInitWindowPosition(10, 10);
   glutInitWindowSize(800, 800);
   (void)glutCreateWindow("TEXTURE");
+  
+  glGenTextures(2, texNames);
+  for (int i = 0; i < 2; i++) {
+    glBindTexture(GL_TEXTURE_2D, texNames[i]);
+    initTexture(image[i], imageWidth[i], imageHeight[i], sDims, sDims); 
+  }
   glutReshapeFunc(reshape);
   glutDisplayFunc(display);
   glutIdleFunc(idle);
+  glutKeyboardFunc(keyboard);
   glutMainLoop();
   return 0;
 }
