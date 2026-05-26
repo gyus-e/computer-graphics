@@ -1,9 +1,3 @@
-/*
-Disegnare un pesce che nuota seguendo un percorso  sinusoidale.
-Il punto di vista deve essere posizionato vicino al centro del tracciato del percorso e lo sguardo deve seguire il pesce.
-• Caricare l’immagine fish.rgba
-• Utilizzare glutIdleFunc per animare il supporto dell’immagine.
-*/
 #include <stdlib.h>
 #include <math.h>
 #include <GL/freeglut_std.h>
@@ -25,11 +19,114 @@ const float fishEndX = 30.0;
 const float fishStartZ = -50.0;
 float fishT = 0.0;
 float fishPosition[3] = {fishStartX, 0.0, fishStartZ};
+double sphereRotation = 0.0;
 GLuint texNames[2];
+
+GLfloat sgenparams[4] = {1, 0, 0, 0}; 
+GLfloat tgenparams[4] = {0, 1, 0, 0};
 
 int currentExercise = 1;
 
 unsigned *read_texture(char *name, int *width, int *height, int *components);
+
+/*
+Disegnare un pesce che nuota seguendo un percorso  sinusoidale.
+Il punto di vista deve essere posizionato vicino al centro del tracciato del percorso e lo sguardo deve seguire il pesce.
+• Caricare l’immagine fish.rgba
+• Utilizzare glutIdleFunc per animare il supporto dell’immagine.
+*/
+void drawExercise1() {
+  glDisable(GL_TEXTURE_GEN_S);
+  glDisable(GL_TEXTURE_GEN_T);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+  glPushMatrix();
+    gluLookAt(
+      camPosition[X], camPosition[Y], camPosition[Z], 
+      fishPosition[X], fishPosition[Y], fishPosition[Z], 
+      upVector[X], upVector[Y], upVector[Z]
+    );
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glColor3f(1.0, 1.0, 1.0);
+    glBindTexture(GL_TEXTURE_2D, texNames[0]);
+    glPushMatrix();
+      glTranslated(fishPosition[X], fishPosition[Y], fishPosition[Z]);
+      glBegin(GL_QUADS);
+        glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -0.5, 0.0);
+        glTexCoord2f(1.0, 0.0); glVertex3f(1.0,  -0.5, 0.0);
+        glTexCoord2f(1.0, 1.0); glVertex3f(1.0,  0.5,  0.0);
+        glTexCoord2f(0.0, 1.0); glVertex3f(-1.0, 0.5,  0.0);
+      glEnd();
+    glPopMatrix();
+  glPopMatrix();
+}
+
+/*
+Disegnare due pesci che nuotano seguendo due percorsi sinusoidali e tra loro perpendicolari.
+Il punto di vista deve essere posizionato abbastanza lontano da vedere entrambi i pesci
+• Caricare l’immagine fish.rgba
+• Caricare l’immagine fisha.rgba
+*/
+void drawExercise2() {
+  glDisable(GL_TEXTURE_GEN_S);
+  glDisable(GL_TEXTURE_GEN_T);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+  glPushMatrix();
+    gluLookAt(
+      camPosition[X], camPosition[Y], camPosition[Z], 
+      0.0, 0.0, fishStartZ, 
+      upVector[X], upVector[Y], upVector[Z]
+    );
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glColor3f(1.0, 1.0, 1.0);
+    for (int i = 0; i < NUM_TEXTURES; i++) {
+      int k = (i == 0) ? 1 : -1;
+      glBindTexture(GL_TEXTURE_2D, texNames[i]);
+      glPushMatrix();
+        glTranslated(k*fishPosition[X], fishPosition[Y], fishPosition[Z]+k);
+        glBegin(GL_QUADS);
+          glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -0.5, 0.0);
+          glTexCoord2f(1.0, 0.0); glVertex3f(1.0,  -0.5, 0.0);
+          glTexCoord2f(1.0, 1.0); glVertex3f(1.0,  0.5,  0.0);
+          glTexCoord2f(0.0, 1.0); glVertex3f(-1.0, 0.5,  0.0);
+        glEnd();
+      glPopMatrix();
+    }
+  glPopMatrix();
+}
+
+/*
+Disegnare una sfera che rotola con dei pesci disegnati sopra
+• Caricare l’immagine fish.rgba
+• Utilizzate la primitiva glut per la sfera
+*/
+void drawExercise3() {
+  glEnable(GL_TEXTURE_GEN_S);
+  glEnable(GL_TEXTURE_GEN_T);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+
+  glPushMatrix();
+    gluLookAt(
+      camPosition[X], camPosition[Y], camPosition[Z], 
+      0.0, 0.0, -50.0, 
+      upVector[X], upVector[Y], upVector[Z]
+    );
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR); 
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGenfv( GL_S, GL_OBJECT_PLANE, sgenparams );
+    glTexGenfv( GL_T, GL_OBJECT_PLANE, tgenparams );
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glColor3f(1.0, 1.0, 1.0);
+    glBindTexture(GL_TEXTURE_2D, texNames[0]);
+    glPushMatrix();
+      glTranslated(0.0, 0.0, -30.0);
+      glRotated(sphereRotation, 0.0, 0.0, 1.0);
+      glutSolidSphere(2.0, 20, 20);
+    glPopMatrix();
+    
+  glPopMatrix();
+}
 
 void initTexture (unsigned *image, const GLsizei imageWidth, const GLsizei imageHeight, const unsigned int sWidth, const unsigned int sHeight) {
   unsigned *sImage = (unsigned *)malloc(sWidth * sHeight * 4 * sizeof(unsigned));
@@ -40,7 +137,6 @@ void initTexture (unsigned *image, const GLsizei imageWidth, const GLsizei image
   );
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
   glTexImage2D(
     GL_TEXTURE_2D, 0, GL_RGBA, 
     sWidth, sHeight, 0, 
@@ -69,46 +165,24 @@ void display() {
   glEnable(GL_NORMALIZE);
   glEnable(GL_COLOR_MATERIAL);  
   glEnable(GL_TEXTURE_2D);
-  
   glEnable(GL_LIGHT0);
   
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-
   glPointSize(1.0);
-  
-  glPushMatrix();
-    if (currentExercise == 1) {
-      gluLookAt(
-        camPosition[X], camPosition[Y], camPosition[Z], 
-        fishPosition[X], fishPosition[Y], fishPosition[Z], 
-        upVector[X], upVector[Y], upVector[Z]
-      );
-    } else {
-      gluLookAt(
-        camPosition[X], camPosition[Y], camPosition[Z], 
-        0.0, 0.0, fishStartZ, 
-        upVector[X], upVector[Y], upVector[Z]
-      );
-    }
-    glPointSize(1.0);
-    
-    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-    glColor3f(1.0, 1.0, 1.0);
-    for (int i = 0; i < NUM_TEXTURES; i++) {
-      int k = (i == 0) ? 1 : -1;
-      glBindTexture(GL_TEXTURE_2D, texNames[i]);
-      glPushMatrix();
-        glTranslated(k*fishPosition[X], fishPosition[Y], fishPosition[Z]+k);
-        glBegin(GL_QUADS);
-          glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -0.5, 0.0);
-          glTexCoord2f(1.0, 0.0); glVertex3f(1.0,  -0.5, 0.0);
-          glTexCoord2f(1.0, 1.0); glVertex3f(1.0,  0.5,  0.0);
-          glTexCoord2f(0.0, 1.0); glVertex3f(-1.0, 0.5,  0.0);
-        glEnd();
-      glPopMatrix();
-    }
-  glPopMatrix();
+  switch (currentExercise) {
+    case 1:
+      drawExercise1();
+      break;
+    case 2:
+      drawExercise2();
+      break;
+    case 3:
+      drawExercise3();
+      break;
+    default:
+      break;
+  }
   glutSwapBuffers();
 }
 
@@ -121,6 +195,7 @@ void idle() {
     fishPosition[Z] = fishStartZ + 2*sin(fishT);
     fishT += fishSpeedZ;
   }
+  sphereRotation -= 0.5;
   glutPostRedisplay();
 }
 
@@ -131,6 +206,9 @@ void keyboard(unsigned char key, int x, int y) {
       break;
     case '2':
       currentExercise = 2;
+      break;
+    case '3':
+      currentExercise = 3;
       break;
     default:
       break;
