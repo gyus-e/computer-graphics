@@ -275,7 +275,7 @@ void keyboard(unsigned char key, int x, int y) {
 
 int main(int argc, char** argv) {
   const GLsizei sDims = 256;
-  char *imageFileNames[NUM_TEXTURES] = {"fish.rgba", "fisha.rgba"}; 
+  char *imageFileNames[NUM_TEXTURES] = {"textures/fish.rgba", "textures/fisha.rgba"}; 
   GLsizei imageWidth[NUM_TEXTURES], imageHeight[NUM_TEXTURES], components[NUM_TEXTURES]; 
   unsigned *image[NUM_TEXTURES];
   for (int i = 0; i < NUM_TEXTURES; i++) {
