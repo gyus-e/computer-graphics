@@ -19,11 +19,22 @@ const float fishEndX = 30.0;
 const float fishStartZ = -50.0;
 float fishT = 0.0;
 float fishPosition[3] = {fishStartX, 0.0, fishStartZ};
-double sphereRotation = 0.0;
+float sphereRotation = 0.0;
+float zoom = -10.0;
+
+unsigned *sImage;
 GLuint texNames[2];
 
 GLfloat sgenparams[4] = {1, 0, 0, 0}; 
 GLfloat tgenparams[4] = {0, 1, 0, 0};
+
+const GLint mipmapFilters[] = {
+    GL_NEAREST_MIPMAP_NEAREST,
+    GL_NEAREST_MIPMAP_LINEAR,
+    GL_LINEAR_MIPMAP_NEAREST,
+    GL_LINEAR_MIPMAP_LINEAR
+};
+int currentMipmapFilter = 0; // indice nell'array
 
 int currentExercise = 1;
 
@@ -39,7 +50,6 @@ void drawExercise1() {
   glDisable(GL_TEXTURE_GEN_S);
   glDisable(GL_TEXTURE_GEN_T);
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
   glPushMatrix();
     gluLookAt(
       camPosition[X], camPosition[Y], camPosition[Z], 
@@ -70,8 +80,6 @@ Il punto di vista deve essere posizionato abbastanza lontano da vedere entrambi 
 void drawExercise2() {
   glDisable(GL_TEXTURE_GEN_S);
   glDisable(GL_TEXTURE_GEN_T);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-
   glPushMatrix();
     gluLookAt(
       camPosition[X], camPosition[Y], camPosition[Z], 
@@ -83,6 +91,7 @@ void drawExercise2() {
     for (int i = 0; i < NUM_TEXTURES; i++) {
       int k = (i == 0) ? 1 : -1;
       glBindTexture(GL_TEXTURE_2D, texNames[i]);
+      glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
       glPushMatrix();
         glTranslated(k*fishPosition[X], fishPosition[Y], fishPosition[Z]+k);
         glBegin(GL_QUADS);
@@ -104,8 +113,8 @@ Disegnare una sfera che rotola con dei pesci disegnati sopra
 void drawExercise3() {
   glEnable(GL_TEXTURE_GEN_S);
   glEnable(GL_TEXTURE_GEN_T);
+  glBindTexture(GL_TEXTURE_2D, texNames[0]);
   glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
-
   glPushMatrix();
     gluLookAt(
       camPosition[X], camPosition[Y], camPosition[Z], 
@@ -118,18 +127,47 @@ void drawExercise3() {
     glTexGenfv( GL_T, GL_OBJECT_PLANE, tgenparams );
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glColor3f(1.0, 1.0, 1.0);
-    glBindTexture(GL_TEXTURE_2D, texNames[0]);
     glPushMatrix();
       glTranslated(0.0, 0.0, -30.0);
-      glRotated(sphereRotation, 0.0, 0.0, 1.0);
+      glRotatef(sphereRotation, 0.0, 0.0, 1.0);
       glutSolidSphere(2.0, 20, 20);
     glPopMatrix();
-    
+  glPopMatrix();
+}
+
+/*
+Disegnare un pesce fermo che può essere visualizzato a distanza variabile.
+• Rendere possibile la modifica del filtro per mipmap tra i quattro valori
+*/
+void drawExercise4() {
+  glDisable(GL_TEXTURE_GEN_S);
+  glDisable(GL_TEXTURE_GEN_T);
+  glBindTexture(GL_TEXTURE_2D, texNames[0]);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, mipmapFilters[currentMipmapFilter]);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mipmapFilters[currentMipmapFilter]);
+  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  glPushMatrix();
+    gluLookAt(
+      0.0, 0.0, 0.0, 
+      0.0, 0.0, -10.0, 
+      upVector[X], upVector[Y], upVector[Z]
+    );
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glColor3f(1.0, 1.0, 1.0);
+    glPushMatrix();
+      glTranslated(0.0, 0.0, zoom);
+      glBegin(GL_QUADS);
+        glTexCoord2f(0.0, 0.0); glVertex3f(-1.0, -0.5, 0.0);
+        glTexCoord2f(1.0, 0.0); glVertex3f(1.0,  -0.5, 0.0);
+        glTexCoord2f(1.0, 1.0); glVertex3f(1.0,  0.5,  0.0);
+        glTexCoord2f(0.0, 1.0); glVertex3f(-1.0, 0.5,  0.0);
+      glEnd();
+    glPopMatrix();
   glPopMatrix();
 }
 
 void initTexture (unsigned *image, const GLsizei imageWidth, const GLsizei imageHeight, const unsigned int sWidth, const unsigned int sHeight) {
-  unsigned *sImage = (unsigned *)malloc(sWidth * sHeight * 4 * sizeof(unsigned));
+  sImage = (unsigned *)malloc(sWidth * sHeight * 4 * sizeof(unsigned));
    (void)gluScaleImage(
     GL_RGBA, 
     imageWidth, imageHeight,  GL_UNSIGNED_BYTE,   image, 
@@ -137,10 +175,16 @@ void initTexture (unsigned *image, const GLsizei imageWidth, const GLsizei image
   );
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-  glTexImage2D(
-    GL_TEXTURE_2D, 0, GL_RGBA, 
-    sWidth, sHeight, 0, 
-    GL_RGBA, GL_UNSIGNED_BYTE, sImage
+  // glTexImage2D(
+  //   GL_TEXTURE_2D, 0, GL_RGBA, 
+  //   sWidth, sHeight, 0, 
+  //   GL_RGBA, GL_UNSIGNED_BYTE, sImage
+  // );
+  gluBuild2DMipmaps(
+    GL_TEXTURE_2D, GL_RGBA, 
+    sWidth, sHeight, 
+    GL_RGBA, GL_UNSIGNED_BYTE, 
+    sImage
   );
 }
 
@@ -150,7 +194,7 @@ void reshape(int width, int height) {
   glViewport(0, 0, width, height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(20.0, (double)width / (double)height, 30.0, 100.0);
+  gluPerspective(20.0, (double)width / (double)height, 5.0, 100.0);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -166,7 +210,6 @@ void display() {
   glEnable(GL_COLOR_MATERIAL);  
   glEnable(GL_TEXTURE_2D);
   glEnable(GL_LIGHT0);
-  
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
   glPointSize(1.0);
@@ -179,6 +222,9 @@ void display() {
       break;
     case 3:
       drawExercise3();
+      break;
+    case 4:
+      drawExercise4();
       break;
     default:
       break;
@@ -210,6 +256,18 @@ void keyboard(unsigned char key, int x, int y) {
     case '3':
       currentExercise = 3;
       break;
+    case '4':
+      currentExercise = 4;
+      break;
+    case 'w':
+      zoom -= 1.0;
+      break;
+    case 's':
+      zoom += 1.0;
+      break;
+    case 'm':
+      currentMipmapFilter = (currentMipmapFilter + 1) % 4;
+      break;
     default:
       break;
   }
@@ -223,13 +281,11 @@ int main(int argc, char** argv) {
   for (int i = 0; i < NUM_TEXTURES; i++) {
     image[i] = read_texture(imageFileNames[i], &imageWidth[i], &imageHeight[i], &components[i]); 
   }  
-  
   glutInit(&argc, argv);
   glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
   glutInitWindowPosition(10, 10);
   glutInitWindowSize(800, 800);
   (void)glutCreateWindow("TEXTURE");
-  
   glGenTextures(NUM_TEXTURES, texNames);
   for (int i = 0; i < NUM_TEXTURES; i++) {
     glBindTexture(GL_TEXTURE_2D, texNames[i]);
