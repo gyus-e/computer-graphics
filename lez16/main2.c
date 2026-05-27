@@ -22,6 +22,7 @@ const GLfloat black[4] = {0.0, 0.0, 0.0, 1.0};
 const GLfloat white[4] = {1.0, 1.0, 1.0, 1.0};
 const GLfloat gray[4] = {0.2, 0.2, 0.2, 1.0};
 const GLfloat beige[4] = {0.96, 0.96, 0.86, 1.0};
+const GLfloat purple[4] = {0.5, 0.0, 0.5, 1.0};
 
 const double corridorDims[3] = {5.0, 5.0, 50.0};
 
@@ -30,9 +31,9 @@ const GLfloat applique2Pos[4] = {4.0, 1.0, 0.0, 1.0};
 
 const GLsizei sDims = 256;
 char *imageFileNames[NUM_TEXTURES] = {
-  "textures/TilesZelligeSquaresWeathered001_COL_VAR1_2K.jpg", 
-  "textures/BricksDragfacedRunning008_COL_2K.png",
-  "textures/FabricPlainNaturalSheer009_COL_2K.jpg"
+  "textures/TilesZelligeSquaresWeathered001_COL_VAR1_2K.rgba", 
+  "textures/BricksDragfacedRunning008_COL_2K.rgba",
+  "textures/FabricPlainNaturalSheer009_COL_2K.rgba"
 }; 
 GLsizei imageWidth[NUM_TEXTURES], imageHeight[NUM_TEXTURES], components[NUM_TEXTURES]; 
 
@@ -59,7 +60,7 @@ void initTexture (unsigned *image, const GLsizei imageWidth, const GLsizei image
     sWidth,    sHeight,     GL_UNSIGNED_BYTE,  sImage
   );
   glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+  // glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
   gluBuild2DMipmaps(
     GL_TEXTURE_2D, GL_RGBA, 
     sWidth, sHeight, 
@@ -85,7 +86,7 @@ void reshape(int width, int height) {
   glViewport(0, 0, width, height);
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
-  gluPerspective(20.0, (double)width / (double)height, 20.0, 100.0);
+  gluPerspective(20.0, (double)width / (double)height, 5.0, 100.0);
   glMatrixMode(GL_MODELVIEW);
 }
 
@@ -102,9 +103,12 @@ void display() {
   glEnable(GL_NORMALIZE);
   glEnable(GL_COLOR_MATERIAL);
   glEnable(GL_TEXTURE_2D);
+  
   // glEnable(GL_TEXTURE_GEN_S);
   // glEnable(GL_TEXTURE_GEN_T);
-  
+  glDisable(GL_TEXTURE_GEN_S);
+  glDisable(GL_TEXTURE_GEN_T);
+
   glLightfv(GL_LIGHT1, GL_POSITION, applique1Pos);
   glLightfv(GL_LIGHT1, GL_DIFFUSE, white);
   glLightfv(GL_LIGHT1, GL_SPECULAR, (GLfloat[]){1.0, 1.0, 1.0, 1.0});
@@ -140,52 +144,79 @@ void display() {
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    // glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR); 
-    // glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-    // glTexGenfv(GL_S, GL_OBJECT_PLANE, sgenparams);
-    // glTexGenfv(GL_T, GL_OBJECT_PLANE, tgenparams);
-
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
     glColor3fv(beige);
     glBegin(GL_QUADS);
       glNormal3f(1.0, 0.0, 0.0);
-      glTexCoord2f(0.0, 0.0); glVertex3f(-corridorDims[X], -corridorDims[Y], -corridorDims[Z]);
-      glTexCoord2f(1.0, 0.0); glVertex3f(-corridorDims[X], -corridorDims[Y], corridorDims[Z]);
-      glTexCoord2f(1.0, 1.0); glVertex3f(-corridorDims[X], corridorDims[Y], corridorDims[Z]);
-      glTexCoord2f(0.0, 1.0); glVertex3f(-corridorDims[X], corridorDims[Y], -corridorDims[Z]);
-    glEnd();
-    glBegin(GL_QUADS);
-      glNormal3f(-1.0, 0.0, 0.0);
-      glTexCoord2f(0.0, 0.0); glVertex3f(corridorDims[X], -corridorDims[Y], -corridorDims[Z]);
-      glTexCoord2f(1.0, 0.0); glVertex3f(corridorDims[X], -corridorDims[Y], corridorDims[Z]);
-      glTexCoord2f(1.0, 1.0); glVertex3f(corridorDims[X], corridorDims[Y], corridorDims[Z]);
-      glTexCoord2f(0.0, 1.0); glVertex3f(corridorDims[X], corridorDims[Y], -corridorDims[Z]);
+      glTexCoord2f(0.0, 0.0);
+      glVertex3f(-corridorDims[X], -corridorDims[Y], -corridorDims[Z]);
+      glTexCoord2f(1.0, 0.0);
+      glVertex3f(-corridorDims[X], -corridorDims[Y], corridorDims[Z]);
+      glTexCoord2f(1.0, 1.0);
+      glVertex3f(-corridorDims[X], corridorDims[Y], corridorDims[Z]);
+      glTexCoord2f(0.0, 1.0);
+      glVertex3f(-corridorDims[X], corridorDims[Y], -corridorDims[Z]);
     glEnd();
 
-        // floor
+    glBegin(GL_QUADS);
+      glNormal3f(-1.0, 0.0, 0.0);
+      glTexCoord2f(0.0, 0.0); 
+      glVertex3f(corridorDims[X], -corridorDims[Y], -corridorDims[Z]);
+      glTexCoord2f(1.0, 0.0); 
+      glVertex3f(corridorDims[X], -corridorDims[Y], corridorDims[Z]);
+      glTexCoord2f(1.0, 1.0); 
+      glVertex3f(corridorDims[X], corridorDims[Y], corridorDims[Z]);
+      glTexCoord2f(0.0, 1.0); 
+      glVertex3f(corridorDims[X], corridorDims[Y], -corridorDims[Z]);
+    glEnd();
+
+    // floor
+    glBindTexture(GL_TEXTURE_2D, texNames[FLOOR]);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
     glColorMaterial(GL_FRONT, GL_AMBIENT_AND_DIFFUSE);
     glColorMaterial(GL_FRONT, GL_SHININESS);
     glColor3fv(blue);
     glBegin(GL_QUADS);
       glNormal3f(0.0, 1.0, 0.0);
+      glTexCoord2f(0.0, 0.0);
       glVertex3f(-corridorDims[X], -corridorDims[Y], -corridorDims[Z]);
+      glTexCoord2f(1.0, 0.0);
       glVertex3f(-corridorDims[X], -corridorDims[Y], corridorDims[Z]);
+      glTexCoord2f(1.0, 1.0);
       glVertex3f(corridorDims[X], -corridorDims[Y], corridorDims[Z]);
+      glTexCoord2f(0.0, 1.0);
       glVertex3f(corridorDims[X], -corridorDims[Y], -corridorDims[Z]);
     glEnd();
 
+    // applique
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glBindTexture(GL_TEXTURE_2D, texNames[APPLIQUE]);
+
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST_MIPMAP_NEAREST);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR); 
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGenfv(GL_S, GL_OBJECT_PLANE, sgenparams);
+    glTexGenfv(GL_T, GL_OBJECT_PLANE, tgenparams);
+    
+    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+    glColorMaterial(GL_FRONT_AND_BACK, GL_SHININESS);
     glPushMatrix();
       glTranslatef(applique1Pos[X], applique1Pos[Y], applique1Pos[Z]);
-      glRotatef(90, 1.0, 0.0, 0.0);
-      glColor3fv(yellow);
-      glutSolidCone(0.5, 1, 20, 60);
+      glColor3fv(purple);
+      glutSolidCube(1.0);
     glPopMatrix();
 
     glPushMatrix();
       glTranslatef(applique2Pos[X], applique2Pos[Y], applique2Pos[Z]);
-      glRotatef(90, 1.0, 0.0, 0.0);
-      glColor3fv(yellow);
-      glutSolidCone(0.5, 1, 20, 60);
+      glColor3fv(purple);
+      glutSolidCube(1.0);
     glPopMatrix();
 
   glPopMatrix();
